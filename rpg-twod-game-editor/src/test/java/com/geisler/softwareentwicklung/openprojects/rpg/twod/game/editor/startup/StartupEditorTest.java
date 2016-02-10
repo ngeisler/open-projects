@@ -42,10 +42,22 @@ public class StartupEditorTest {
     
      @Test
      public void shouldCreateAnInitialEngineFolderAtUserPathOnStartup() {
-         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
          String userPath = System.getProperty("user.home");
+         String initialPath = userPath + "/rpgengine";
+         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
          
-         assertThat(new File(userPath + "/rpgengine").exists(), is(true));
+         assertThat(new File(initialPath).exists(), is(true));
          
+         new File(initialPath).delete();
+     }
+
+     @Test
+     public void shouldCreateAnEngineFolderAtGivenPathOnStartup() {
+         String enginePath = "D:/rpgengine";
+         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup(enginePath);
+         
+         assertThat(new File(enginePath).exists(), is(true));
+         
+         new File(enginePath).delete();
      }
 }

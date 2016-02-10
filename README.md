@@ -1,5 +1,8 @@
-# RPG 2D Game Editor
+# open-projects
+All open projects, designed and implemented by myself - to share ideas with others
 
-## First some startup tests
-The startup of the editor have to check the environment and some other stuff that is necessary.
-So we have to define some paths and get resource files which are used by the editor.
+## First big project i want to start with is a 2D RPG Game Editor.
+
+It will be developed with java. The main interest is to write in test driven mode.
+The goal is to learn more about this process and train myself to test more code in less time.
+More information about the editor will follow at the project-folder in time.
