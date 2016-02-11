@@ -60,4 +60,25 @@ public class StartupEditorTest {
          
          new File(enginePath).delete();
      }
+     
+     @Test
+     public void shouldCreateANewGameProjectFolderIfCreationWasCalled() {
+         String projectName = "gameproject";
+         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
+         startup.createNewProject(projectName);
+         String userPath = System.getProperty("user.home");
+         String projectPath = userPath + "/rpgengine/" + projectName;
+         assertThat(new File(projectPath).exists(), is(true));
+         
+         new File(projectPath).delete();
+     }
+     
+     @Test
+     public void shouldLoadTheEditorEngineWithGivenProjectNameIfEditorIsStarted() {
+         String projectName = "gameproject";
+         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
+         startup.createNewProject(projectName);
+         GameEditor2DRPG editor = startup.startEditor(projectName);
+         assertThat(editor.isRunning(), is(true));
+     }
 }

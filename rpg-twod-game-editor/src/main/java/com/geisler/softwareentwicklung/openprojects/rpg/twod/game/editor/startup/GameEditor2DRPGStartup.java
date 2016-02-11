@@ -8,23 +8,59 @@ import java.io.File;
  */
 public class GameEditor2DRPGStartup {
     
+    private final String filePath;
+    
     /*
     * Constructor of Startup Class with the path
     * where the user files are saved
     */
     public GameEditor2DRPGStartup(String enginePath) {
         // check Engine Path
-        createEnginePath(enginePath);
+        filePath = createEnginePath(enginePath);
     }
     
-    
-    private void createEnginePath(String path) {
-        File filePath;
+    /**
+     * Creation of the engine path, if param is not given 
+     * then the user.home folder will be used to create
+     * a rpgengine folder
+     * 
+     * @param path - given path on startup, where to place all projects
+     * @return engine path will be returned for initialization
+     */
+    private String createEnginePath(String path) {
+        File localFilePath;
         if(path == null || path.isEmpty()) {
-            filePath = new File(System.getProperty("user.home") + "/rpgengine");
+            localFilePath = new File(System.getProperty("user.home") + "/rpgengine");
         } else {
-            filePath = new File(path);
+            localFilePath = new File(path);
         }
-        filePath.mkdir();
+        localFilePath.mkdir();
+        return localFilePath.getAbsolutePath();
+    }
+
+    /**
+     * createNewProject-Method will save a new folder with a given projectname.
+     * The location is beneath the startup engine-folder.
+     * 
+     * @param gameproject the name of the project
+     */
+    void createNewProject(String gameproject) {
+        File localProjectPath;
+        if(gameproject == null || gameproject.isEmpty()) {
+            throw new NullPointerException("Projektname darf nicht null oder leer sein!");
+        } else {
+            localProjectPath = new File(filePath + "/" + gameproject);
+        }
+        localProjectPath.mkdir();
+    }
+
+    /**
+     * Starts the editor engine from Startup-Class with given project name
+     * 
+     * @param projectName name of the project which will be started
+     * @return an instance of {@link GameEditor2DRPG}
+     */
+    GameEditor2DRPG startEditor(String projectName) {
+        return new GameEditor2DRPG(projectName);
     }
 }
