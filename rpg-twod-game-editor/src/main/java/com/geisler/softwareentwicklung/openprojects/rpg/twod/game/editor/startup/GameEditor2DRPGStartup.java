@@ -10,6 +10,7 @@ public class GameEditor2DRPGStartup {
     
     private final String filePath;
     
+    private GameEditor2DRPG editorEngine;
     /*
     * Constructor of Startup Class with the path
     * where the user files are saved
@@ -60,7 +61,12 @@ public class GameEditor2DRPGStartup {
      * @param projectName name of the project which will be started
      * @return an instance of {@link GameEditor2DRPG}
      */
-    GameEditor2DRPG startEditor(String projectName) {
-        return new GameEditor2DRPG(projectName);
+    void startEditor(String projectName) {
+        editorEngine = GameEditor2DRPG.getInstanceForProject(projectName);
+        editorEngine.startEditor();
+    }
+    
+    GameEditor2DRPG getEditorEngine() {
+        return editorEngine;
     }
 }

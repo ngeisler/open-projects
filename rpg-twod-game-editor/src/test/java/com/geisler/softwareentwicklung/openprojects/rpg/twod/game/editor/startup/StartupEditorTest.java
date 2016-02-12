@@ -53,7 +53,7 @@ public class StartupEditorTest {
 
      @Test
      public void shouldCreateAnEngineFolderAtGivenPathOnStartup() {
-         String enginePath = "D:/rpgengine";
+         String enginePath = System.getProperty("user.home") + "/myOne";
          GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup(enginePath);
          
          assertThat(new File(enginePath).exists(), is(true));
@@ -74,11 +74,20 @@ public class StartupEditorTest {
      }
      
      @Test
-     public void shouldLoadTheEditorEngineWithGivenProjectNameIfEditorIsStarted() {
+     public void engineShouldBeRunningWithGivenProjectNameIfEditorIsStarted() {
          String projectName = "gameproject";
          GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
          startup.createNewProject(projectName);
-         GameEditor2DRPG editor = startup.startEditor(projectName);
-         assertThat(editor.isRunning(), is(true));
+         startup.startEditor(projectName);
+         assertThat(startup.getEditorEngine().isRunning(), is(true));
+     }
+     
+     @Test
+     public void engineShouldNotBeRunningWithGivenProjectNameIfEditorIsNotStarted() {
+         String projectName = "gameproject";
+         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
+         startup.createNewProject(projectName);
+         GameEditor2DRPG editor = GameEditor2DRPG.getInstanceForProject(projectName);
+         assertThat(editor.isRunning(), is(false));
      }
 }
