@@ -1,5 +1,6 @@
 package com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor.startup;
 
+import com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor.GameEditor2DRPG;
 import java.io.File;
 
 /**
@@ -18,6 +19,16 @@ public class GameEditor2DRPGStartup {
     public GameEditor2DRPGStartup(String enginePath) {
         // check Engine Path
         filePath = createEnginePath(enginePath);
+    }
+
+    /*
+    * Constructor of Startup Class with the path
+    * where the user files are saved
+    */
+    public GameEditor2DRPGStartup(String enginePath, GameEditor2DRPG editorEngine) {
+        // check Engine Path
+        this.filePath = createEnginePath(enginePath);
+        this.editorEngine = editorEngine;
     }
     
     /**
@@ -45,7 +56,7 @@ public class GameEditor2DRPGStartup {
      * 
      * @param gameproject the name of the project
      */
-    void createNewProject(String gameproject) {
+    public void createNewProject(String gameproject) {
         File localProjectPath;
         if(gameproject == null || gameproject.isEmpty()) {
             throw new NullPointerException("Projektname darf nicht null oder leer sein!");
@@ -59,14 +70,15 @@ public class GameEditor2DRPGStartup {
      * Starts the editor engine from Startup-Class with given project name
      * 
      * @param projectName name of the project which will be started
-     * @return an instance of {@link GameEditor2DRPG}
      */
-    void startEditor(String projectName) {
-        editorEngine = GameEditor2DRPG.getInstanceForProject(projectName);
-        editorEngine.startEditor();
+    public void startEditor(String projectName) {
+        if(editorEngine == null) {
+            editorEngine = new GameEditor2DRPG(projectName);
+        }
+        editorEngine.startEditor(filePath);
     }
     
-    GameEditor2DRPG getEditorEngine() {
+    public GameEditor2DRPG getEditorEngine() {
         return editorEngine;
     }
 }

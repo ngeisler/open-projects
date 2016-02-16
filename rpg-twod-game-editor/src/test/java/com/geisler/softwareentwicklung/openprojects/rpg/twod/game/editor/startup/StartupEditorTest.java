@@ -5,7 +5,15 @@
  */
 package com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor.startup;
 
+import com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor.GameEditor2DRPG;
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import static org.hamcrest.Matchers.*;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -20,6 +28,9 @@ import static org.junit.Assert.*;
  */
 public class StartupEditorTest {
     
+    // Class under test
+    GameEditor2DRPGStartup cut;
+    
     public StartupEditorTest() {
     }
     
@@ -33,10 +44,38 @@ public class StartupEditorTest {
     
     @Before
     public void setUp() {
+        cut = new GameEditor2DRPGStartup("");
     }
     
     @After
-    public void tearDown() {
+    public void tearDown() throws URISyntaxException, IOException {
+        String userPath = System.getProperty("user.home");
+        String initialPath = userPath + "/rpgengine";
+        File file = new File(initialPath);
+        if(!file.exists()) {
+            return;
+        }
+        Files.walkFileTree(file.toPath(), new SimpleFileVisitor<Path>() {
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+             throws IOException
+         {
+             Files.delete(file);
+             return FileVisitResult.CONTINUE;
+         }
+         @Override
+         public FileVisitResult postVisitDirectory(Path dir, IOException e)
+             throws IOException
+         {
+             if (e == null) {
+                 Files.delete(dir);
+                 return FileVisitResult.CONTINUE;
+             } else {
+                 // directory iteration failed
+                 throw e;
+             }
+         }
+     });
     }
 
     
@@ -44,7 +83,6 @@ public class StartupEditorTest {
      public void shouldCreateAnInitialEngineFolderAtUserPathOnStartup() {
          String userPath = System.getProperty("user.home");
          String initialPath = userPath + "/rpgengine";
-         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
          
          assertThat(new File(initialPath).exists(), is(true));
          
@@ -54,7 +92,7 @@ public class StartupEditorTest {
      @Test
      public void shouldCreateAnEngineFolderAtGivenPathOnStartup() {
          String enginePath = System.getProperty("user.home") + "/myOne";
-         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup(enginePath);
+         cut = new GameEditor2DRPGStartup(enginePath);
          
          assertThat(new File(enginePath).exists(), is(true));
          
@@ -64,8 +102,7 @@ public class StartupEditorTest {
      @Test
      public void shouldCreateANewGameProjectFolderIfCreationWasCalled() {
          String projectName = "gameproject";
-         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
-         startup.createNewProject(projectName);
+         cut.createNewProject(projectName);
          String userPath = System.getProperty("user.home");
          String projectPath = userPath + "/rpgengine/" + projectName;
          assertThat(new File(projectPath).exists(), is(true));
@@ -73,21 +110,4 @@ public class StartupEditorTest {
          new File(projectPath).delete();
      }
      
-     @Test
-     public void engineShouldBeRunningWithGivenProjectNameIfEditorIsStarted() {
-         String projectName = "gameproject";
-         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
-         startup.createNewProject(projectName);
-         startup.startEditor(projectName);
-         assertThat(startup.getEditorEngine().isRunning(), is(true));
-     }
-     
-     @Test
-     public void engineShouldNotBeRunningWithGivenProjectNameIfEditorIsNotStarted() {
-         String projectName = "gameproject";
-         GameEditor2DRPGStartup startup = new GameEditor2DRPGStartup("");
-         startup.createNewProject(projectName);
-         GameEditor2DRPG editor = GameEditor2DRPG.getInstanceForProject(projectName);
-         assertThat(editor.isRunning(), is(false));
-     }
 }

@@ -1,0 +1,130 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor;
+
+import com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor.startup.GameEditor2DRPGStartup;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
+
+/**
+ *
+ * @author ngeis
+ */
+public class GameEditor2DRPGTest {
+    
+    // Class under test
+    GameEditor2DRPG cut;
+    
+    // mocked Class under test
+    GameEditor2DRPG spy;    
+    
+    // needed for start
+    GameEditor2DRPGStartup startup;
+    
+    public GameEditor2DRPGTest() {
+    }
+    
+    @BeforeClass
+    public static void setUpClass() {
+    }
+    
+    @AfterClass
+    public static void tearDownClass() {
+    }
+    
+    @Before
+    public void setUp() {
+        startup = new GameEditor2DRPGStartup("");
+        startup.createNewProject("gameproject");
+        cut = new GameEditor2DRPG("gameproject");
+        spy = spy(cut);
+    }
+    
+    @After
+    public void tearDown() throws URISyntaxException, IOException {
+        String userPath = System.getProperty("user.home");
+        String initialPath = userPath + "/rpgengine";
+        File file = new File(initialPath);
+        Files.walkFileTree(file.toPath(), new SimpleFileVisitor<Path>() {
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+             throws IOException
+         {
+             Files.delete(file);
+             return FileVisitResult.CONTINUE;
+         }
+         @Override
+         public FileVisitResult postVisitDirectory(Path dir, IOException e)
+             throws IOException
+         {
+             if (e == null) {
+                 Files.delete(dir);
+                 return FileVisitResult.CONTINUE;
+             } else {
+                 // directory iteration failed
+                 throw e;
+             }
+         }
+     });
+    }
+    
+    @Test
+    public void theEditorShouldImportMapResourceIfNothingIsInProjectFolder() throws IOException {
+        String userPath = System.getProperty("user.home");
+        String initialPath = userPath + "/rpgengine";
+        
+        File[] mockValues = new File[1];
+        mockValues[0] = new File(userPath + "/test.png");
+        mockValues[0].createNewFile();
+        // we have to mock the dialog call and return a test file
+        doReturn(mockValues).when(spy).callDialogAndGetSelectedFiles();
+        
+        // no existing map resources
+        assertThat(spy.existMapResources(initialPath), is(false));
+        
+        // start and import resources
+        spy.startEditor(initialPath);
+        
+        // map resources should exist
+        assertThat(spy.existMapResources(initialPath), is(true));
+        
+        mockValues[0].deleteOnExit();
+    }
+    
+//    @Test
+     public void engineShouldBeRunningWithGivenProjectNameIfEditorIsStarted() {
+         String projectName = "gameproject";
+
+         assertThat(cut.isRunning(), is(true));
+     }
+     
+//     @Test
+     public void engineShouldNotBeRunningWithGivenProjectNameIfEditorIsNotStarted() {
+         String projectName = "gameproject";
+          startup = new GameEditor2DRPGStartup("");
+         startup.createNewProject(projectName);
+         GameEditor2DRPG editor = new GameEditor2DRPG(projectName);
+         assertThat(editor.isRunning(), is(false));
+     }
+     
+}
