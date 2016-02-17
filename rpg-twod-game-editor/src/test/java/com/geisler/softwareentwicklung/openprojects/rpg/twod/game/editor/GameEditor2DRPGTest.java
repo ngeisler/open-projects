@@ -8,15 +8,13 @@ package com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor;
 import com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor.startup.GameEditor2DRPGStartup;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import javax.swing.JFrame;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -118,17 +116,46 @@ public class GameEditor2DRPGTest {
     }
     
     @Test
+    public void engineShouldNotBeRunningWithGivenProjectNameIfEditorIsNotStarted() {
+        assertThat(cut.isRunning(), is(false));
+    }
+    
+    @Test
     public void engineShouldBeRunningWithGivenProjectNameIfEditorIsStarted() {
-         doNothing().when(spy).callImportResourceDialog(TEST_PATH);
+        doNothing().when(spy).importResourcesFromDialog(TEST_PATH);
 
-         spy.startEditor(TEST_PATH);
+        spy.startEditor(TEST_PATH);
          
-         assertThat(spy.isRunning(), is(true));
+        assertThat(spy.isRunning(), is(true));         
+    }
+
+    @Test
+    public void engineShouldBeRunningIfEditorIsStartedAndResourceImportIsEmpty() {
+        doReturn(new File[0]).when(spy).callDialogAndGetSelectedFiles();
+
+        spy.startEditor(TEST_PATH);
+        
+        assertThat(spy.isRunning(), is(true));
     }
      
-     @Test
-     public void engineShouldNotBeRunningWithGivenProjectNameIfEditorIsNotStarted() {
-         assertThat(cut.isRunning(), is(false));
-     }
-     
+    @Test
+    public void engineShouldBeRunningIfEditorIsStartedAndResourceImportIsNull() {
+        doReturn(null).when(spy).callDialogAndGetSelectedFiles();
+
+        spy.startEditor(TEST_PATH);
+        
+        assertThat(spy.isRunning(), is(true));
+    }
+    
+    @Test
+    public void engineShouldBeAVisibleFrameAfterStart() {
+        doNothing().when(spy).importResourcesFromDialog(TEST_PATH);
+
+        spy.startEditor(TEST_PATH);
+        
+        assertThat(spy, instanceOf(JFrame.class));
+        assertThat(spy.isActive(), is(true));
+        
+        spy.setVisible(false);
+    }
 }

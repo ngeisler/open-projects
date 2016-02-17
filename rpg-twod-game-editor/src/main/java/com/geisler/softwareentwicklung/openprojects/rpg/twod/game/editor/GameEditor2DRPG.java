@@ -6,16 +6,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *  
  * 
  * @author ngeis
  */
-public class GameEditor2DRPG {
+public class GameEditor2DRPG extends JFrame {
 
     private boolean running;
     
@@ -25,11 +25,18 @@ public class GameEditor2DRPG {
         this.projectName = projectName;
     }
    
+    /**
+     * set the running state of the editor to true, but checks
+     * the resource path for the map-tiles before and calls an import.
+     * 
+     * @param filePath 
+     */
     public void startEditor(String filePath) {
-        running = true;
         if(!existMapResources(filePath)) {
-            callImportResourceDialog(filePath);
+            importResourcesFromDialog(filePath);
         }
+        running = true;
+        this.setVisible(true);
     }
     
     /**
@@ -53,7 +60,13 @@ public class GameEditor2DRPG {
                 && resourceFolder.listFiles().length > 0) ;
     }
 
-    void callImportResourceDialog(String filePath) {
+    /**
+     * Import selected resources from a called dialog to the defined
+     * project-resources folder.
+     * 
+     * @param filePath 
+     */
+    void importResourcesFromDialog(String filePath) {
         // check resourcepath and create if not exist
         String importDest = filePath + "/" + projectName + "/resources/";
         File resourceFolder = new File(importDest);
@@ -63,6 +76,9 @@ public class GameEditor2DRPG {
         
         // open dialog an get selected files
         File[] selectedFiles = this.callDialogAndGetSelectedFiles();
+        if(selectedFiles == null) {
+            return;
+        }
         
         // copy files to the resource location
         for (File selectedFile : selectedFiles) {
@@ -72,7 +88,7 @@ public class GameEditor2DRPG {
             try {
                 Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
-                ex.printStackTrace();
+                throw new RuntimeException("Error on creating copy of resources: " + source);
             }
         }
     }
@@ -85,7 +101,17 @@ public class GameEditor2DRPG {
     File[] callDialogAndGetSelectedFiles() {
         JFileChooser fc = new JFileChooser(System.getProperty("user.home"));
         fc.setMultiSelectionEnabled(true);
-        fc.showDialog(null, "Import Map Ressourcen");
+        int showDialog = fc.showDialog(null, "Import Map Ressourcen");
+        if(showDialog != JFileChooser.APPROVE_OPTION
+                || fc.getSelectedFiles() == null
+                || fc.getSelectedFiles().length < 1) {
+            JOptionPane.showMessageDialog(
+                            fc, // parent component 
+                            "Ressourcen zum Erstellen von Maps wurden nicht importiert. "
+                                    + "Bitte importieren Sie diese über das Menü sobald der Editor gestartet wurde.", // message
+                            "Ressourcen Import abgebrochen", // titel 
+                            JOptionPane.INFORMATION_MESSAGE); // messagetype
+        }
         return fc.getSelectedFiles();
     }
 }
