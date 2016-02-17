@@ -5,7 +5,6 @@
  */
 package com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor.startup;
 
-import com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor.GameEditor2DRPG;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -31,6 +30,12 @@ public class StartupEditorTest {
     // Class under test
     GameEditor2DRPGStartup cut;
     
+    // testpath
+    private static final String TEST_PATH = System.getProperty("user.home") + "/testengine/";
+    
+    // testproject
+    private static final String TEST_PROJECT = "/testproject";
+    
     public StartupEditorTest() {
     }
     
@@ -44,14 +49,12 @@ public class StartupEditorTest {
     
     @Before
     public void setUp() {
-        cut = new GameEditor2DRPGStartup("");
+        cut = new GameEditor2DRPGStartup(TEST_PATH);
     }
     
     @After
     public void tearDown() throws URISyntaxException, IOException {
-        String userPath = System.getProperty("user.home");
-        String initialPath = userPath + "/rpgengine";
-        File file = new File(initialPath);
+        File file = new File(TEST_PATH);
         if(!file.exists()) {
             return;
         }
@@ -81,33 +84,29 @@ public class StartupEditorTest {
     
      @Test
      public void shouldCreateAnInitialEngineFolderAtUserPathOnStartup() {
-         String userPath = System.getProperty("user.home");
-         String initialPath = userPath + "/rpgengine";
+        String initialPath = System.getProperty("user.home") + "/rpgengine";
+        // initial startup without path for files and folders
+        cut = new GameEditor2DRPGStartup("");
          
-         assertThat(new File(initialPath).exists(), is(true));
-         
-         new File(initialPath).delete();
+        assertThat(new File(initialPath).exists(), is(true));
+        
+        new File(initialPath).deleteOnExit();
      }
 
      @Test
      public void shouldCreateAnEngineFolderAtGivenPathOnStartup() {
-         String enginePath = System.getProperty("user.home") + "/myOne";
-         cut = new GameEditor2DRPGStartup(enginePath);
          
-         assertThat(new File(enginePath).exists(), is(true));
+         assertThat(new File(TEST_PATH).exists(), is(true));
          
-         new File(enginePath).delete();
+         new File(TEST_PATH).delete();
      }
      
      @Test
      public void shouldCreateANewGameProjectFolderIfCreationWasCalled() {
-         String projectName = "gameproject";
-         cut.createNewProject(projectName);
-         String userPath = System.getProperty("user.home");
-         String projectPath = userPath + "/rpgengine/" + projectName;
-         assertThat(new File(projectPath).exists(), is(true));
+         cut.createNewProject(TEST_PROJECT);
          
-         new File(projectPath).delete();
+         assertThat(new File(TEST_PATH + TEST_PROJECT).exists(), is(true));
+         
      }
      
 }

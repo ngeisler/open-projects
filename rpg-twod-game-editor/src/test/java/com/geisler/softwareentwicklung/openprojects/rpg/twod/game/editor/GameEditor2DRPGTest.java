@@ -31,6 +31,12 @@ import static org.mockito.Mockito.*;
  * @author ngeis
  */
 public class GameEditor2DRPGTest {
+
+    // testpath
+    private static final String TEST_PATH = System.getProperty("user.home") + "/testengine/";
+    
+    // testproject
+    private static final String TEST_PROJECT = "/testproject";
     
     // Class under test
     GameEditor2DRPG cut;
@@ -54,17 +60,18 @@ public class GameEditor2DRPGTest {
     
     @Before
     public void setUp() {
-        startup = new GameEditor2DRPGStartup("");
-        startup.createNewProject("gameproject");
-        cut = new GameEditor2DRPG("gameproject");
+        startup = new GameEditor2DRPGStartup(TEST_PATH);
+        startup.createNewProject(TEST_PROJECT);
+        cut = new GameEditor2DRPG(TEST_PROJECT);
         spy = spy(cut);
     }
     
     @After
     public void tearDown() throws URISyntaxException, IOException {
-        String userPath = System.getProperty("user.home");
-        String initialPath = userPath + "/rpgengine";
-        File file = new File(initialPath);
+        File file = new File(TEST_PATH);
+        if(!file.exists()) {
+            return;
+        }
         Files.walkFileTree(file.toPath(), new SimpleFileVisitor<Path>() {
          @Override
          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
@@ -91,7 +98,6 @@ public class GameEditor2DRPGTest {
     @Test
     public void theEditorShouldImportMapResourceIfNothingIsInProjectFolder() throws IOException {
         String userPath = System.getProperty("user.home");
-        String initialPath = userPath + "/rpgengine";
         
         File[] mockValues = new File[1];
         mockValues[0] = new File(userPath + "/test.png");
@@ -100,31 +106,29 @@ public class GameEditor2DRPGTest {
         doReturn(mockValues).when(spy).callDialogAndGetSelectedFiles();
         
         // no existing map resources
-        assertThat(spy.existMapResources(initialPath), is(false));
+        assertThat(spy.existMapResources(TEST_PATH), is(false));
         
         // start and import resources
-        spy.startEditor(initialPath);
+        spy.startEditor(TEST_PATH);
         
         // map resources should exist
-        assertThat(spy.existMapResources(initialPath), is(true));
+        assertThat(spy.existMapResources(TEST_PATH), is(true));
         
         mockValues[0].deleteOnExit();
     }
     
-//    @Test
-     public void engineShouldBeRunningWithGivenProjectNameIfEditorIsStarted() {
-         String projectName = "gameproject";
+    @Test
+    public void engineShouldBeRunningWithGivenProjectNameIfEditorIsStarted() {
+         doNothing().when(spy).callImportResourceDialog(TEST_PATH);
 
-         assertThat(cut.isRunning(), is(true));
-     }
+         spy.startEditor(TEST_PATH);
+         
+         assertThat(spy.isRunning(), is(true));
+    }
      
-//     @Test
+     @Test
      public void engineShouldNotBeRunningWithGivenProjectNameIfEditorIsNotStarted() {
-         String projectName = "gameproject";
-          startup = new GameEditor2DRPGStartup("");
-         startup.createNewProject(projectName);
-         GameEditor2DRPG editor = new GameEditor2DRPG(projectName);
-         assertThat(editor.isRunning(), is(false));
+         assertThat(cut.isRunning(), is(false));
      }
      
 }
