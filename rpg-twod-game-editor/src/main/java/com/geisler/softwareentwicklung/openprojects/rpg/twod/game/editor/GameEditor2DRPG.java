@@ -22,6 +22,8 @@ public class GameEditor2DRPG extends JFrame {
     
     private final String projectName;
     
+    private MapResourceView mapResourceView;
+    
     public GameEditor2DRPG(String projectName) {
         this.projectName = projectName;
     }
@@ -35,6 +37,12 @@ public class GameEditor2DRPG extends JFrame {
     public void startEditor(String filePath) {
         if(!existMapResources(filePath)) {
             importResourcesFromDialog(filePath);
+        }
+        mapResourceView = new MapResourceView();
+        if(existMapResources(filePath)) {
+            String[] mapResources = getMapResources(filePath);
+            mapResourceView.setActiveResource(mapResources[0]);
+            mapResourceView.setResourceLoaded(true);
         }
         running = true;
         this.setVisible(true);
@@ -137,5 +145,18 @@ public class GameEditor2DRPG extends JFrame {
         }
         super.processWindowEvent(e); 
     }
-        
+    
+    MapResourceView getMapResourceView() {
+        return this.mapResourceView;
+    }
+
+    private String[] getMapResources(String filePath) {
+        String resourcePath = filePath + "/" + projectName + "/resources/";
+        File resourceFolder = new File(resourcePath);
+        String[] mapResourceNames = resourceFolder.list();
+        for(int i = 0; i < mapResourceNames.length; i++) {
+            mapResourceNames[i] = mapResourceNames[i].substring(0, mapResourceNames[i].indexOf("."));
+        }
+        return mapResourceNames;
+    }
 }

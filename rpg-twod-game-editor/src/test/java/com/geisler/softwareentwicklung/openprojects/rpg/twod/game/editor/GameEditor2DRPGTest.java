@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -194,5 +195,78 @@ public class GameEditor2DRPGTest {
         assertThat(spy.getDefaultCloseOperation(), is(JFrame.EXIT_ON_CLOSE));
     }
     
+    @Test
+    public void engingeShouldShowMapResourceViewIfMapResourcesAreImported() {
+        String userPath = System.getProperty("user.home");
+        
+        File[] mockValues = new File[1];
+        mockValues[0] = new File(userPath + "/city_inside.png");
+        // we have to mock the dialog call and return a test file
+        doReturn(mockValues).when(spy).callDialogAndGetSelectedFiles();
+        
+        // start and import resources
+        spy.startEditor(TEST_PATH);
+        
+        // map resources should exist
+        assertThat(spy.existMapResources(TEST_PATH), is(true));
+        
+        assertThat(spy.getMapResourceView(), instanceOf(JPanel.class));
+        assertThat(spy.getMapResourceView().isResourceLoaded(), is(true));
+        assertThat(spy.getMapResourceView().getActiveResource(), is("city_inside"));
+        
+    }
     
+    @Test
+    public void engingeShouldNotShowTheActiveMapResourceIfNoMapResourcesAreImported() {
+        doNothing().when(spy).importResourcesFromDialog(TEST_PATH);
+
+        spy.startEditor(TEST_PATH);
+        
+        assertThat(spy.existMapResources(TEST_PATH), is(false));
+        
+        assertThat(spy.getMapResourceView(), instanceOf(JPanel.class));
+        assertThat(spy.getMapResourceView().isResourceLoaded(), is(false));
+    }
+    
+    @Test
+    public void engingeShouldShowTheActiveMapResourceIfMapResourcesAreImported() {
+        String userPath = System.getProperty("user.home");
+        
+        File[] mockValues = new File[1];
+        mockValues[0] = new File(userPath + "/city_inside2.png");
+        // we have to mock the dialog call and return a test file
+        doReturn(mockValues).when(spy).callDialogAndGetSelectedFiles();
+        
+        // start and import resources
+        spy.startEditor(TEST_PATH);
+        
+        // map resources should exist
+        assertThat(spy.existMapResources(TEST_PATH), is(true));
+        
+        assertThat(spy.getMapResourceView(), instanceOf(JPanel.class));
+        assertThat(spy.getMapResourceView().isResourceLoaded(), is(true));
+        assertThat(spy.getMapResourceView().getActiveResource(), is("city_inside2"));
+    }
+    
+    @Test
+    public void engingeShouldShowTheActiveMapResourceIfTwoOrMoreMapResourcesAreImported() {
+        String userPath = System.getProperty("user.home");
+        
+        File[] mockValues = new File[2];
+        mockValues[0] = new File(userPath + "/city_inside.png");
+        mockValues[1] = new File(userPath + "/city_inside2.png");
+        // we have to mock the dialog call and return a test file
+        doReturn(mockValues).when(spy).callDialogAndGetSelectedFiles();
+        
+        // start and import resources
+        spy.startEditor(TEST_PATH);
+        spy.getMapResourceView().setActiveResource("city_inside2");
+        
+        // map resources should exist
+        assertThat(spy.existMapResources(TEST_PATH), is(true));
+        
+        assertThat(spy.getMapResourceView(), instanceOf(JPanel.class));
+        assertThat(spy.getMapResourceView().isResourceLoaded(), is(true));
+        assertThat(spy.getMapResourceView().getActiveResource(), is("city_inside2"));
+    }
 }
