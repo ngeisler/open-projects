@@ -62,10 +62,17 @@ public class GameEditor2DRPGTest {
         startup.createNewProject(TEST_PROJECT);
         cut = new GameEditor2DRPG(TEST_PROJECT);
         spy = spy(cut);
+        
     }
     
     @After
     public void tearDown() throws URISyntaxException, IOException {
+        if(spy.isRunning()) {
+            spy.stopEditor();
+        }
+        spy = null;
+        cut = null;
+        startup = null;
         File file = new File(TEST_PATH);
         if(!file.exists()) {
             return;
@@ -91,6 +98,7 @@ public class GameEditor2DRPGTest {
              }
          }
      });
+        
     }
     
     @Test
@@ -148,14 +156,43 @@ public class GameEditor2DRPGTest {
     }
     
     @Test
-    public void engineShouldBeAVisibleFrameAfterStart() {
+    public void engineShouldBeAnEnabledFrameAfterStart() {
         doNothing().when(spy).importResourcesFromDialog(TEST_PATH);
 
         spy.startEditor(TEST_PATH);
         
         assertThat(spy, instanceOf(JFrame.class));
-        assertThat(spy.isActive(), is(true));
+        assertThat(spy.isEnabled(), is(true));
         
-        spy.setVisible(false);
     }
+    
+    @Test
+    public void engineShouldNotBeRunningAfterStop() {
+        doNothing().when(spy).importResourcesFromDialog(TEST_PATH);
+
+        spy.startEditor(TEST_PATH);
+        
+        assertThat(spy, instanceOf(JFrame.class));
+        assertThat(spy.isRunning(), is(true));
+               
+        spy.stopEditor();
+        
+        assertThat(spy, instanceOf(JFrame.class));
+        assertThat(spy.isRunning(), is(false));
+               
+    }
+
+    @Test
+    public void engineShouldExitOnClose() {
+        doNothing().when(spy).importResourcesFromDialog(TEST_PATH);
+
+        spy.startEditor(TEST_PATH);
+        
+        assertThat(spy, instanceOf(JFrame.class));
+        assertThat(spy.isRunning(), is(true));
+        
+        assertThat(spy.getDefaultCloseOperation(), is(JFrame.EXIT_ON_CLOSE));
+    }
+    
+    
 }

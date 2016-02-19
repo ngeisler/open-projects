@@ -1,5 +1,6 @@
 package com.geisler.softwareentwicklung.openprojects.rpg.twod.game.editor;
 
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,6 +38,8 @@ public class GameEditor2DRPG extends JFrame {
         }
         running = true;
         this.setVisible(true);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.pack();
     }
     
     /**
@@ -114,4 +117,25 @@ public class GameEditor2DRPG extends JFrame {
         }
         return fc.getSelectedFiles();
     }
+    
+    /**
+     * stops the editor and disposes the visible frame
+     */
+    void stopEditor() {
+
+        this.running = false;
+        this.setVisible(false);
+    }
+
+    @Override
+    protected void processWindowEvent(WindowEvent e) {
+        // If window is closed, do something I want before
+        if(e.getID() == WindowEvent.WINDOW_CLOSING) {
+            stopEditor();
+            super.processWindowEvent(e);
+            return;
+        }
+        super.processWindowEvent(e); 
+    }
+        
 }
