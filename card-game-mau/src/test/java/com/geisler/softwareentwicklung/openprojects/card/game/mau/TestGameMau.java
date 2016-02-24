@@ -14,7 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
-import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 /**
  *
@@ -203,5 +202,51 @@ public class TestGameMau {
         spyGame.throwPlayerCardToMiddleStack();
         
         assertThat(spyGame.getChoosedColor(), is(not(nullValue())));
+    }
+    
+    @Test
+    public void whenAPlayerThrowsRightColorAfterChoosingThenChoosedColorIsNull() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
+        // Arrange Act Assert
+        GameMau game = new GameMau();
+        GameMau spyGame = spy(game);        
+        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
+        spyGame.addNewPlayerToGame(spyPlayerOne);
+        
+        when(spyPlayerOne.getSelectedHandCardToThrow(anyInt()))
+                .thenReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
+                .thenReturn(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.SEVEN));
+        
+        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
+        doReturn(EnumSkatColor.DIAMONDS).when(spyPlayerOne).getSelectedColor();
+        
+        // throw Jack
+        spyGame.throwPlayerCardToMiddleStack();
+        
+        // throw right Color
+        spyGame.throwPlayerCardToMiddleStack();
+        
+        assertThat(spyGame.getChoosedColor(), is(nullValue()));
+        
+    }
+    
+    @Test
+    public void whenAPlayerThrowsValueSevenThenNextPlayerHaveToDrawTwoExtraCards() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
+        // Arrange Act Assert
+        GameMau game = new GameMau();
+        GameMau spyGame = spy(game);        
+        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
+        GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
+        spyGame.addNewPlayerToGame(spyPlayerOne);
+        spyGame.addNewPlayerToGame(spyPlayerTwo);
+        
+        when(spyPlayerTwo.getSelectedHandCardToThrow(anyInt()))
+                .thenReturn(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.SEVEN));
+        
+        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
+                
+        spyGame.throwPlayerCardToMiddleStack();
+        
+        assertThat(spyGame.getActivePlayer().getHandSize(), is(7));
+        
     }
 }

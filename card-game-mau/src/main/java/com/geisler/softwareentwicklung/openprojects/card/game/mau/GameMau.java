@@ -68,6 +68,10 @@ public class GameMau {
             getActivePlayer().giveHandCard(drawStack.pop());
         }        
         pushToNextPlayerTurn();
+        if(card.getValue().equals(EnumSkatValue.SEVEN)) {
+            getActivePlayer().giveHandCard(drawStack.pop());
+            getActivePlayer().giveHandCard(drawStack.pop());
+        }
     }
 
     HashMap<Integer, GameMauPlayer> getPlayers() {
@@ -121,14 +125,23 @@ public class GameMau {
     void checkRulesForCard(SkatCard playerCard) throws CardByRulesNotAllowedException {
         SkatCard stackCard = getMiddleStack().peek();
         boolean ruleBreak = false;
+        // Standard-Rules
         if(!stackCard.getColor().equals(playerCard.getColor())
                 && !stackCard.getValue().equals(playerCard.getValue())
                 && !playerCard.getValue().equals(EnumSkatValue.JACK)) {
             ruleBreak = true;
         }
+        // Jack on Jack Rule
         if(stackCard.getValue().equals(EnumSkatValue.JACK)
                 && playerCard.getValue().equals(EnumSkatValue.JACK)) {
             ruleBreak = true;
+        }
+        // Color-Chooser Rule
+        if(choosedColor != null && !choosedColor.equals(playerCard.getColor())) {
+            ruleBreak = true;
+        } else if (choosedColor != null
+                && choosedColor.equals(playerCard.getColor())) {
+            choosedColor = null;
         }
         if(!ruleBreak) {
             
