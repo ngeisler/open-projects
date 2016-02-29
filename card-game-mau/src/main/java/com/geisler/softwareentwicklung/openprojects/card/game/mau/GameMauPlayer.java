@@ -7,11 +7,13 @@ import java.util.List;
  *
  * @author ngeis
  */
-class GameMauPlayer {
+public class GameMauPlayer {
     
     String playerName;
     
     List<SkatCard> handCards;
+    
+    EnumSkatColor jacksColor = EnumSkatColor.HEARTS;
 
     public GameMauPlayer(String name) {
         playerName = name;
@@ -22,11 +24,11 @@ class GameMauPlayer {
         return this.handCards.remove(selectedCard);
     }
 
-    int getHandSize() {
+    public int getHandSize() {
         return getHandCards().size();
     }
 
-    List<SkatCard> getHandCards() {
+    public List<SkatCard> getHandCards() {
         return this.handCards;
     }
 
@@ -34,7 +36,7 @@ class GameMauPlayer {
         this.handCards.addAll(listHandCards);
     }
 
-    String getName() {
+    public String getName() {
         return this.playerName;
     }
 
@@ -43,7 +45,10 @@ class GameMauPlayer {
     }
 
     EnumSkatColor getSelectedColor() {
-        return EnumSkatColor.HEARTS;
+        return jacksColor;
     }
 
+    public void setJacksColor(EnumSkatColor color) {
+        this.jacksColor = color;
+    }
 }

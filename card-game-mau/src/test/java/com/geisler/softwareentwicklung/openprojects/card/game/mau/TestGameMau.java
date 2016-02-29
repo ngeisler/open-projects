@@ -5,8 +5,11 @@
  */
 package com.geisler.softwareentwicklung.openprojects.card.game.mau;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -51,7 +54,7 @@ public class TestGameMau {
         spyGame.popFirstCardToMiddleStack();
         doNothing().when(spyGame).checkRulesForCard(anyObject());
         int size = spyGame.getMiddleStack().size();
-        spyGame.throwPlayerCardToMiddleStack();
+        spyGame.throwPlayerCardToMiddleStack(null);
         assertThat(spyGame.getMiddleStack().size(), is(size+1));
     }
     
@@ -65,7 +68,7 @@ public class TestGameMau {
         doNothing().when(spyGame).checkRulesForCard(anyObject());
         spyGame.popFirstCardToMiddleStack();
         int size = spyGame.getActivePlayer().getHandSize();
-        spyGame.throwPlayerCardToMiddleStack();
+        spyGame.throwPlayerCardToMiddleStack(null);
         assertThat(spyGame.getActivePlayer().getHandSize(), is(size-1));
     }
     
@@ -134,7 +137,7 @@ public class TestGameMau {
         spyGame.popFirstCardToMiddleStack();
         doNothing().when(spyGame).checkRulesForCard(anyObject());
         String playerNameOne = spyGame.getActivePlayer().getName();
-        spyGame.throwPlayerCardToMiddleStack();
+        spyGame.throwPlayerCardToMiddleStack(null);
         assertThat(playerNameOne, is(not(spyGame.getActivePlayer().getName())));
     }
     
@@ -150,8 +153,8 @@ public class TestGameMau {
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
         spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
                 
-        spyGame.throwPlayerCardToMiddleStack();
-        assertThat(spyPlayerOne.getHandSize(), is(handsize+1));
+        spyGame.throwPlayerCardToMiddleStack(null);
+        assertThat(spyPlayerOne.getHandSize(), is(handsize+2));
     }
     
     @Test
@@ -166,8 +169,8 @@ public class TestGameMau {
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
         spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
                 
-        spyGame.throwPlayerCardToMiddleStack();
-        assertThat(spyPlayerOne.getHandSize(), is(handsize+1));
+        spyGame.throwPlayerCardToMiddleStack(null);
+        assertThat(spyPlayerOne.getHandSize(), is(handsize+2));
     }
     
     @Test
@@ -182,9 +185,9 @@ public class TestGameMau {
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
         spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
                 
-        spyGame.throwPlayerCardToMiddleStack();
+        spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyPlayerOne.getHandSize(), is(handsize+1));
+        assertThat(spyPlayerOne.getHandSize(), is(handsize+2));
     }
     
     @Test
@@ -199,7 +202,7 @@ public class TestGameMau {
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
         spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
                 
-        spyGame.throwPlayerCardToMiddleStack();
+        spyGame.throwPlayerCardToMiddleStack(null);
         
         assertThat(spyGame.getChoosedColor(), is(not(nullValue())));
     }
@@ -220,10 +223,10 @@ public class TestGameMau {
         doReturn(EnumSkatColor.DIAMONDS).when(spyPlayerOne).getSelectedColor();
         
         // throw Jack
-        spyGame.throwPlayerCardToMiddleStack();
+        spyGame.throwPlayerCardToMiddleStack(null);
         
         // throw right Color
-        spyGame.throwPlayerCardToMiddleStack();
+        spyGame.throwPlayerCardToMiddleStack(null);
         
         assertThat(spyGame.getChoosedColor(), is(nullValue()));
         
@@ -236,17 +239,177 @@ public class TestGameMau {
         GameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
+        List<SkatCard> cards = Arrays.asList(
+                new SkatCard[]{
+                    new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.EIGHT),
+                    new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.EIGHT),
+                    new SkatCard(EnumSkatColor.SPADES, EnumSkatValue.EIGHT),
+                    new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.NINE),
+                    new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.NINE)});
+        when(spyGame.getPlayersInitialCards()).thenReturn(cards).thenCallRealMethod();
+
         spyGame.addNewPlayerToGame(spyPlayerOne);
         spyGame.addNewPlayerToGame(spyPlayerTwo);
+        
         
         when(spyPlayerTwo.getSelectedHandCardToThrow(anyInt()))
                 .thenReturn(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.SEVEN));
         
         spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
                 
-        spyGame.throwPlayerCardToMiddleStack();
+        spyGame.throwPlayerCardToMiddleStack(null);
         
         assertThat(spyGame.getActivePlayer().getHandSize(), is(7));
         
     }
+    
+    @Test
+    public void whenAPlayerHaveToDrawTwoExtraCardsThenAnotherValueSevenCardCanRedirectWithTwoExtraCardsToNextPlayer() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
+        // Arrange Act Assert
+        GameMau game = new GameMau();
+        GameMau spyGame = spy(game);        
+        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
+        GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
+        spyGame.addNewPlayerToGame(spyPlayerOne);
+        spyGame.addNewPlayerToGame(spyPlayerTwo);
+        
+        when(spyPlayerTwo.getSelectedHandCardToThrow(anyInt()))
+                .thenReturn(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.SEVEN));
+        
+        when(spyPlayerOne.getSelectedHandCardToThrow(anyInt()))
+                .thenReturn(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
+        
+        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
+        
+        when(spyGame.isNextPlayerStay()).thenReturn(Boolean.FALSE);
+        
+        doReturn(true).when(spyGame).checkPlayerHasCard(any());
+        
+        spyGame.throwPlayerCardToMiddleStack(null);
+        
+        doReturn(false).when(spyGame).checkPlayerHasCard(any());
+                
+        spyGame.throwPlayerCardToMiddleStack(null);
+        
+        assertThat(spyGame.getActivePlayer().getHandSize(), is(8));
+        
+    }
+    
+    @Test
+    public void whenAPlayerThrowsAnAceValueThenNextPlayerHasToStay() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
+        // Arrange Act Assert
+        GameMau game = new GameMau();
+        GameMau spyGame = spy(game);        
+        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
+        GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
+        spyGame.addNewPlayerToGame(spyPlayerOne);
+        spyGame.addNewPlayerToGame(spyPlayerTwo);
+        
+        doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.ACE))
+                .when(spyPlayerTwo).getSelectedHandCardToThrow(anyInt());
+        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.EIGHT));
+                
+        spyGame.throwPlayerCardToMiddleStack(null);
+        
+        // so the next player should be player two again
+        assertThat(spyGame.getActivePlayer().getName(), is("two"));
+    }
+    
+    @Test
+    public void whenAllPlayersHaveMinimumOneCardThenTheGameIsNotOver() throws NoMorePlayersAllowedException {
+        // Arrange Act Assert
+        GameMau game = new GameMau();
+        GameMau spyGame = spy(game);        
+        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
+        GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
+        
+        spyGame.addNewPlayerToGame(spyPlayerTwo);
+        spyGame.addNewPlayerToGame(spyPlayerOne);
+        
+        spyGame.popFirstCardToMiddleStack();
+        
+        spyGame.start();
+        
+        assertThat(spyGame.isRunning(), is(true));
+    }    
+    
+    @Test
+    public void whenOnePlayersHaveNoCardsLeftAfterTurnThenTheGameIsOver() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
+        // Arrange Act Assert
+        GameMau game = new GameMau();
+        GameMau spyGame = spy(game);        
+        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
+        GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
+        
+        spyGame.addNewPlayerToGame(spyPlayerTwo);
+        spyGame.addNewPlayerToGame(spyPlayerOne);
+        
+        spyGame.popFirstCardToMiddleStack();
+        doNothing().when(spyGame).checkRulesForCard(any());
+        doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
+        doReturn(false).when(spyGame).isNextPlayerStay();
+        
+        for(int i = 0; i < 9; i++) {
+            spyGame.throwPlayerCardToMiddleStack(null);
+        }
+        
+        assertThat(spyGame.isRunning(), is(false));
+    }
+    
+    @Test
+    public void whenAPlayerHasNoHandCardsThenItIsTheWinnerOfTheGame() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
+        // Arrange Act Assert
+        GameMau game = new GameMau();
+        GameMau spyGame = spy(game);        
+        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
+        GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
+        
+        spyGame.addNewPlayerToGame(spyPlayerTwo);
+        spyGame.addNewPlayerToGame(spyPlayerOne);
+        
+        spyGame.popFirstCardToMiddleStack();
+        doNothing().when(spyGame).checkRulesForCard(any());
+        doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
+        doReturn(false).when(spyGame).isNextPlayerStay();
+        
+        for(int i = 0; i < 9; i++) {
+            spyGame.throwPlayerCardToMiddleStack(null);
+        }
+        
+        assertThat(spyGame.getWinner().getName(), is("one"));
+    }
+    
+    @Test
+    public void whenDrawStackGetsEmptyThenMiddleStackHaveToBeShuffledAndSwitched() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
+        // Arrange Act Assert
+        GameMau game = new GameMau();
+        GameMau spyGame = spy(game);        
+        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
+        GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
+        GameMauPlayer spyPlayerThree = spy(new GameMauPlayer("three"));
+        GameMauPlayer spyPlayerFour = spy(new GameMauPlayer("four"));
+        
+        spyGame.addNewPlayerToGame(spyPlayerFour);
+        spyGame.addNewPlayerToGame(spyPlayerThree);
+        spyGame.addNewPlayerToGame(spyPlayerTwo);
+        spyGame.addNewPlayerToGame(spyPlayerOne);
+        
+        spyGame.popFirstCardToMiddleStack();
+        doNothing().when(spyGame).checkRulesForCard(any());
+        doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
+        doReturn(false).when(spyGame).isNextPlayerStay();
+        
+        for(int i = 0; i < 9; i++) {
+            spyGame.throwPlayerCardToMiddleStack(null);
+        }
+        Stack<SkatCard> checkStack = new Stack();
+        checkStack.setSize(spyGame.getMiddleStack().size());
+        Collections.copy(checkStack, spyGame.getMiddleStack());
+        spyGame.getDrawStack().removeAllElements();
+        
+        spyGame.getDrawStack().pop();
+        
+        assertThat(spyGame.getDrawStack(), hasItem(checkStack.get(1)));
+    }
+
 }

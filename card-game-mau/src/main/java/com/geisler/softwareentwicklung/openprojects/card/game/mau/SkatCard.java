@@ -6,7 +6,7 @@ import java.util.Objects;
  *
  * @author ngeis
  */
-class SkatCard {
+public class SkatCard {
 
     private EnumSkatColor color;
     
@@ -61,6 +61,10 @@ class SkatCard {
         }
         return true;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return color.getGermanName() + " " + value.getGermanName();
+    }
+       
 }

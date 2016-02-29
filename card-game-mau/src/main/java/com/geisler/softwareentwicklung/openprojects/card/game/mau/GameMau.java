@@ -18,22 +18,28 @@ public class GameMau {
     
     private Stack<SkatCard> drawStack;
     private Stack<SkatCard> middleStack;
+    private Stack<SkatCard> extraDrawStack;
     private HashMap<Integer, GameMauPlayer> players;
+    private boolean nextPlayerStay;
+    private boolean running;
+    private GameMauPlayer winner;
+
     
     public GameMau() {
         players = new HashMap<>();
         drawStack = new Stack();
         initialiseDrawStack();
         middleStack = new Stack<>();
+        extraDrawStack = new Stack<>();
         choosedColor = null;
+        winner = null;
     }
     /**
      * Adds a new Player with given name to the Mau-Game
      * 
-     * @param playerName the name of the new player
      * @param newPlayer the new player
      */
-    void addNewPlayerToGame(GameMauPlayer newPlayer) throws NoMorePlayersAllowedException {
+    public void addNewPlayerToGame(GameMauPlayer newPlayer) throws NoMorePlayersAllowedException {
         if(this.players.size() == 4) {
             throw new NoMorePlayersAllowedException();
         }
@@ -43,38 +49,49 @@ public class GameMau {
         this.players.put(this.players.size() + 1, newPlayer);
     }
     
-    GameMauPlayer getActivePlayer() {
+    public GameMauPlayer getActivePlayer() {
         return activePlayer;
     }
 
-    Stack<SkatCard> getMiddleStack() {
+    public Stack<SkatCard> getMiddleStack() {
         return middleStack;
     }
 
     Stack<SkatCard> getDrawStack() {
+        if(drawStack.isEmpty()) {
+            pushMiddleStackToDrawStackShuffled();
+        }
         return drawStack;
     }
     
-    void throwPlayerCardToMiddleStack() throws CardByRulesNotAllowedException {
-        // TODO: Ask active player for card
-        SkatCard card = getActivePlayer().getSelectedHandCardToThrow(0);
+    public void throwPlayerCardToMiddleStack(Integer index) throws CardByRulesNotAllowedException {
+        if(index == null) {
+            index = 0;
+        }
+        SkatCard card = getActivePlayer().getSelectedHandCardToThrow(index);
         try {
             checkRulesForCard(card);
             if(card.getValue().equals(EnumSkatValue.JACK)) {
                 choosedColor = getActivePlayer().getSelectedColor();
             }
             middleStack.push(card);
+            if(getActivePlayer().getHandSize() < 1) {
+                winner = getActivePlayer();
+                setRunning(false);
+            }
+            if(card.getValue().equals(EnumSkatValue.SEVEN)) {
+                extraDrawStack.push(getDrawStack().pop());
+                extraDrawStack.push(getDrawStack().pop());
+            }
         } catch (CardByRulesNotAllowedException e) {
-            getActivePlayer().giveHandCard(drawStack.pop());
+            getActivePlayer().giveHandCard(getDrawStack().pop());
+            getActivePlayer().giveHandCard(card);
         }        
         pushToNextPlayerTurn();
-        if(card.getValue().equals(EnumSkatValue.SEVEN)) {
-            getActivePlayer().giveHandCard(drawStack.pop());
-            getActivePlayer().giveHandCard(drawStack.pop());
-        }
+        checkActivePlayersNextCardsForSeven();
     }
 
-    HashMap<Integer, GameMauPlayer> getPlayers() {
+    public HashMap<Integer, GameMauPlayer> getPlayers() {
         return this.players;
     }
 
@@ -87,10 +104,10 @@ public class GameMau {
      * 
      * @return 
      */
-    private List<SkatCard> getPlayersInitialCards() {
+    List<SkatCard> getPlayersInitialCards() {
         List<SkatCard> listCards = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            listCards.add(drawStack.pop());
+            listCards.add(getDrawStack().pop());
         }
         return listCards;
     }
@@ -114,10 +131,20 @@ public class GameMau {
                 idx = entry.getKey();
             }
         }
+        // Standard
         if(idx == players.size()) {
             idx = 1;
         } else {
             idx++;
+        }
+        // Ace-Rule
+        if(isNextPlayerStay()) {
+            if(idx == players.size()) {
+                idx = 1;
+            } else {
+                idx++;
+            }
+            nextPlayerStay = false;
         }
         activePlayer = players.get(idx);
     }
@@ -128,7 +155,8 @@ public class GameMau {
         // Standard-Rules
         if(!stackCard.getColor().equals(playerCard.getColor())
                 && !stackCard.getValue().equals(playerCard.getValue())
-                && !playerCard.getValue().equals(EnumSkatValue.JACK)) {
+                && !playerCard.getValue().equals(EnumSkatValue.JACK)
+                && !choosedColor.equals(playerCard.getColor())) {
             ruleBreak = true;
         }
         // Jack on Jack Rule
@@ -144,7 +172,9 @@ public class GameMau {
             choosedColor = null;
         }
         if(!ruleBreak) {
-            
+            if(playerCard.getValue().equals(EnumSkatValue.ACE)) {
+                nextPlayerStay = true;
+            }
         } else {
             throw new CardByRulesNotAllowedException();
         }
@@ -152,5 +182,63 @@ public class GameMau {
 
     EnumSkatColor getChoosedColor() {
         return choosedColor;
+    }
+
+    /**
+     * if player doesn't have a seven then he draw the extra cards
+     * this method checks activePlayers Cards and give new handcards 
+     * if there is no seven on hand
+     */
+    void checkActivePlayersNextCardsForSeven() {
+        if(checkPlayerHasCard(EnumSkatValue.SEVEN)) {
+            return;
+        }
+        int size = extraDrawStack.size();
+        for(int i = 0; i < size ; i++) {
+            activePlayer.giveHandCard(extraDrawStack.pop());
+        }
+    }
+    
+    public boolean isNextPlayerStay() {
+        return nextPlayerStay;
+    }
+
+    boolean checkPlayerHasCard(EnumSkatValue enumSkatValue) {
+        for (SkatCard skatCard : activePlayer.getHandCards()) {
+            if(skatCard.getValue().equals(EnumSkatValue.SEVEN)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean isRunning() {
+        return running;
+    }
+
+    private void setRunning(boolean b) {
+        this.running = b;
+    }
+
+    public void start() {
+        popFirstCardToMiddleStack();
+        this.running = true;
+    }
+    
+    public GameMauPlayer getWinner() {
+        return this.winner;
+    }
+
+    void pushMiddleStackToDrawStackShuffled() {
+        SkatCard topMiddleStackCard = getMiddleStack().pop();
+        
+        while(!getMiddleStack().isEmpty()) {
+            drawStack.push(getMiddleStack().pop());
+        }
+        // return CardOnTop to MiddleStack
+        getMiddleStack().push(topMiddleStackCard);
+        
+        // Shuffle drawStack
+        Collections.shuffle(drawStack);
     }
 }

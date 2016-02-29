@@ -4,7 +4,7 @@ package com.geisler.softwareentwicklung.openprojects.card.game.mau;
  *
  * @author ngeis
  */
-enum EnumSkatValue {
+public enum EnumSkatValue {
     SEVEN("Sieben"),
     EIGHT("Acht"),
     NINE("Neun"),

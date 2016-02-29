@@ -4,7 +4,7 @@ package com.geisler.softwareentwicklung.openprojects.card.game.mau;
  *
  * @author ngeis
  */
-enum EnumSkatColor {
+public enum EnumSkatColor {
     HEARTS("Herz"),
     SPADES("Pik"),
     CLUBS("Kreuz"),
