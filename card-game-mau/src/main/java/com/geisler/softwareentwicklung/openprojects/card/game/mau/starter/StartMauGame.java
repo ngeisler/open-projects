@@ -1,10 +1,13 @@
 package com.geisler.softwareentwicklung.openprojects.card.game.mau.starter;
 
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.CardByRulesNotAllowedException;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.EnumSkatColor;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.EnumSkatValue;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.GameMau;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.GameMauPlayer;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.NoMorePlayersAllowedException;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.SkatCard;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.view.GameMauView;
 import java.util.Scanner;
 
 /**
@@ -14,7 +17,14 @@ import java.util.Scanner;
 public class StartMauGame {
 
     public static void main(String[] args) throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
-        
+        startWindowGame();        
+    }
+
+    public static void startWindowGame() {
+        GameMauView view = new GameMauView();
+    }
+    
+    public static void startConsoleGame() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         GameMau mau = new GameMau();
         
         StartMauGame start = new StartMauGame();
@@ -36,13 +46,22 @@ public class StartMauGame {
         // rundenbasiert
         while(mau.isRunning()) {
             System.out.println("Aktuelle Karte auf dem Stapel: " + mau.getMiddleStack().peek().toString());
+            // Show choosed color
+            if(mau.getChoosedColor() != null) {
+                System.out.println("Gewünschte Farbe ist: " + mau.getChoosedColor().getGermanName());
+            }
             Integer cardIdx = start.getCardIndexFromUser(mau.getActivePlayer());
+            SkatCard playerCard = mau.getActivePlayer().getHandCards().get(cardIdx-1);
+            if(playerCard.getValue().equals(EnumSkatValue.JACK)) {
+                EnumSkatColor choosedColor = start.getChoosedPlayerColor();
+                mau.getActivePlayer().setJacksColor(choosedColor);
+            }
             mau.throwPlayerCardToMiddleStack(cardIdx-1);
         }
         
         System.out.println("Gewinner ist: " + mau.getWinner().getName());
     }
-
+    
     public Integer getCardIndexFromUser(GameMauPlayer activePlayer) {
         int handsize = activePlayer.getHandSize();
         System.out.println(activePlayer.getName() + ", bitte wähle deine Karte. (" + 1 + "-" + handsize + ")");
@@ -84,6 +103,21 @@ public class StartMauGame {
         }
         
         return playerCount;
+    }
+
+    private EnumSkatColor getChoosedPlayerColor() {
+        int i = 0;
+        System.out.println("Welche Farbe wünschst du dir?");
+        for (EnumSkatColor enumColor : EnumSkatColor.values()) {
+            i++;
+            System.out.println("" + i + ": " + enumColor.getGermanName());
+        }
+        Scanner scanIn = new Scanner(System.in);
+        Integer intColor = 0;
+        if(scanIn.hasNextInt()) {
+             intColor = scanIn.nextInt();
+        }
+        return EnumSkatColor.values()[intColor - 1];
     }
     
 }

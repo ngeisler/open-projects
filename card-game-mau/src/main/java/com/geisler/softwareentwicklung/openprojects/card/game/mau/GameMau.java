@@ -71,7 +71,7 @@ public class GameMau {
         SkatCard card = getActivePlayer().getSelectedHandCardToThrow(index);
         try {
             checkRulesForCard(card);
-            if(card.getValue().equals(EnumSkatValue.JACK)) {
+            if(card.getValue().equals(EnumSkatValue.JACK) && choosedColor == null) {
                 choosedColor = getActivePlayer().getSelectedColor();
             }
             middleStack.push(card);
@@ -180,7 +180,7 @@ public class GameMau {
         }
     }
 
-    EnumSkatColor getChoosedColor() {
+    public EnumSkatColor getChoosedColor() {
         return choosedColor;
     }
 
