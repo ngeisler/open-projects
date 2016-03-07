@@ -1,5 +1,14 @@
+/**
+ * Copyright (c) 2015, Nico Geisler Softwareentwicklung
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: no conditions.
+ */
 package com.geisler.softwareentwicklung.openprojects.card.game.mau;
 
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatColor;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatValue;
 import java.util.Objects;
 
 /**
@@ -64,7 +73,7 @@ public class SkatCard {
 
     @Override
     public String toString() {
-        return color.getGermanName() + " " + value.getGermanName();
+        return color.getGerman() + " " + value.getGerman();
     }
        
 }

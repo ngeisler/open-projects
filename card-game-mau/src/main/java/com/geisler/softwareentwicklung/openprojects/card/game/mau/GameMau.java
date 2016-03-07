@@ -1,5 +1,16 @@
+/**
+ * Copyright (c) 2015, Nico Geisler Softwareentwicklung
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: no conditions.
+ */
 package com.geisler.softwareentwicklung.openprojects.card.game.mau;
 
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatColor;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatValue;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.NoMorePlayersAllowedException;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.CardByRulesNotAllowedException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -155,13 +166,7 @@ public class GameMau {
         // Standard-Rules
         if(!stackCard.getColor().equals(playerCard.getColor())
                 && !stackCard.getValue().equals(playerCard.getValue())
-                && !playerCard.getValue().equals(EnumSkatValue.JACK)
-                && !choosedColor.equals(playerCard.getColor())) {
-            ruleBreak = true;
-        }
-        // Jack on Jack Rule
-        if(stackCard.getValue().equals(EnumSkatValue.JACK)
-                && playerCard.getValue().equals(EnumSkatValue.JACK)) {
+                && !playerCard.getValue().equals(EnumSkatValue.JACK)) {
             ruleBreak = true;
         }
         // Color-Chooser Rule
@@ -169,7 +174,13 @@ public class GameMau {
             ruleBreak = true;
         } else if (choosedColor != null
                 && choosedColor.equals(playerCard.getColor())) {
+            ruleBreak = false;
             choosedColor = null;
+        }
+        // Jack on Jack Rule
+        if(stackCard.getValue().equals(EnumSkatValue.JACK)
+                && playerCard.getValue().equals(EnumSkatValue.JACK)) {
+            ruleBreak = true;
         }
         if(!ruleBreak) {
             if(playerCard.getValue().equals(EnumSkatValue.ACE)) {
