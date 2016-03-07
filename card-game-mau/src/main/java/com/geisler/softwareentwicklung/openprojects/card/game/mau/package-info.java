@@ -6,6 +6,6 @@
  * are met: no conditions.
  */
 /**
- * Some exceptions that are thrown during the game.
+ * The main package for the models and game rules.
  */
-package com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions;
+package com.geisler.softwareentwicklung.openprojects.card.game.mau;

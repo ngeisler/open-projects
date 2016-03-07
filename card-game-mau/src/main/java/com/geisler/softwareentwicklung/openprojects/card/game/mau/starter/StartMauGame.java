@@ -52,16 +52,16 @@ public class StartMauGame {
         
         // rundenbasiert
         while(mau.isRunning()) {
-            System.out.println("Aktuelle Karte auf dem Stapel: " + mau.getMiddleStack().peek().toString());
+            System.out.println("Aktuelle Karte auf dem Stapel: " + mau.getMiddlestack().peek().toString());
             // Show choosed color
-            if(mau.getChoosedColor() != null) {
-                System.out.println("Gewünschte Farbe ist: " + mau.getChoosedColor().getGerman());
+            if(mau.getChoosedcolor() != null) {
+                System.out.println("Gewünschte Farbe ist: " + mau.getChoosedcolor().getGerman());
             }
-            Integer cardIdx = start.getCardIndexFromUser(mau.getActivePlayer());
-            SkatCard playerCard = mau.getActivePlayer().getHandCards().get(cardIdx-1);
+            Integer cardIdx = start.getCardIndexFromUser(mau.getPlayer());
+            SkatCard playerCard = mau.getPlayer().getHandCards().get(cardIdx-1);
             if(playerCard.getValue().equals(EnumSkatValue.JACK)) {
                 EnumSkatColor choosedColor = start.getChoosedPlayerColor();
-                mau.getActivePlayer().setJacksColor(choosedColor);
+                mau.getPlayer().setJacksColor(choosedColor);
             }
             mau.throwPlayerCardToMiddleStack(cardIdx-1);
         }

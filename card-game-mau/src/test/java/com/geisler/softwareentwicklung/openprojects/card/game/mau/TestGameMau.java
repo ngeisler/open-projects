@@ -57,9 +57,9 @@ public class TestGameMau {
         spyGame.addNewPlayerToGame(new GameMauPlayer("one"));
         spyGame.popFirstCardToMiddleStack();
         doNothing().when(spyGame).checkRulesForCard(anyObject());
-        int size = spyGame.getMiddleStack().size();
+        int size = spyGame.getMiddlestack().size();
         spyGame.throwPlayerCardToMiddleStack(null);
-        assertThat(spyGame.getMiddleStack().size(), is(size+1));
+        assertThat(spyGame.getMiddlestack().size(), is(size+1));
     }
     
     @Test
@@ -71,9 +71,9 @@ public class TestGameMau {
         spyGame.addNewPlayerToGame(new GameMauPlayer("one"));
         doNothing().when(spyGame).checkRulesForCard(anyObject());
         spyGame.popFirstCardToMiddleStack();
-        int size = spyGame.getActivePlayer().getHandSize();
+        int size = spyGame.getPlayer().getHandSize();
         spyGame.throwPlayerCardToMiddleStack(null);
-        assertThat(spyGame.getActivePlayer().getHandSize(), is(size-1));
+        assertThat(spyGame.getPlayer().getHandSize(), is(size-1));
     }
     
     @Test
@@ -81,7 +81,7 @@ public class TestGameMau {
         // Arrange Act Assert
         GameMau game = new GameMau();
         game.popFirstCardToMiddleStack();
-        assertThat(game.getMiddleStack().size(), is(greaterThan(0)));
+        assertThat(game.getMiddlestack().size(), is(greaterThan(0)));
     }
     
     @Test
@@ -140,9 +140,9 @@ public class TestGameMau {
         spyGame.addNewPlayerToGame(new GameMauPlayer("two"));
         spyGame.popFirstCardToMiddleStack();
         doNothing().when(spyGame).checkRulesForCard(anyObject());
-        String playerNameOne = spyGame.getActivePlayer().getName();
+        String playerNameOne = spyGame.getPlayer().getName();
         spyGame.throwPlayerCardToMiddleStack(null);
-        assertThat(playerNameOne, is(not(spyGame.getActivePlayer().getName())));
+        assertThat(playerNameOne, is(not(spyGame.getPlayer().getName())));
     }
     
     @Test
@@ -155,7 +155,7 @@ public class TestGameMau {
         int handsize = spyPlayerOne.getHandSize();
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.ACE))
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
+        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         assertThat(spyPlayerOne.getHandSize(), is(handsize+2));
@@ -171,7 +171,7 @@ public class TestGameMau {
         int handsize = spyPlayerOne.getHandSize();
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
+        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         assertThat(spyPlayerOne.getHandSize(), is(handsize+2));
@@ -187,7 +187,7 @@ public class TestGameMau {
         int handsize = spyPlayerOne.getHandSize();
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
+        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
@@ -204,11 +204,11 @@ public class TestGameMau {
         
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
+        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyGame.getChoosedColor(), is(not(nullValue())));
+        assertThat(spyGame.getChoosedcolor(), is(not(nullValue())));
     }
     
     @Test
@@ -223,7 +223,7 @@ public class TestGameMau {
                 .thenReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
                 .thenReturn(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.SEVEN));
         
-        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
+        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
         doReturn(EnumSkatColor.DIAMONDS).when(spyPlayerOne).getSelectedColor();
         
         // throw Jack
@@ -232,7 +232,7 @@ public class TestGameMau {
         // throw right Color
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyGame.getChoosedColor(), is(nullValue()));
+        assertThat(spyGame.getChoosedcolor(), is(nullValue()));
         
     }
     
@@ -259,11 +259,11 @@ public class TestGameMau {
         when(spyPlayerTwo.getSelectedHandCardToThrow(anyInt()))
                 .thenReturn(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.SEVEN));
         
-        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
+        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyGame.getActivePlayer().getHandSize(), is(7));
+        assertThat(spyGame.getPlayer().getHandSize(), is(7));
         
     }
     
@@ -283,9 +283,9 @@ public class TestGameMau {
         when(spyPlayerOne.getSelectedHandCardToThrow(anyInt()))
                 .thenReturn(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
         
-        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
+        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
         
-        when(spyGame.isNextPlayerStay()).thenReturn(Boolean.FALSE);
+        when(spyGame.isNextplayerstay()).thenReturn(Boolean.FALSE);
         
         doReturn(true).when(spyGame).checkPlayerHasCard(any());
         
@@ -295,7 +295,7 @@ public class TestGameMau {
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyGame.getActivePlayer().getHandSize(), is(8));
+        assertThat(spyGame.getPlayer().getHandSize(), is(8));
         
     }
     
@@ -311,12 +311,12 @@ public class TestGameMau {
         
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.ACE))
                 .when(spyPlayerTwo).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddleStack().push(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.EIGHT));
+        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.EIGHT));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
         // so the next player should be player two again
-        assertThat(spyGame.getActivePlayer().getName(), is("two"));
+        assertThat(spyGame.getPlayer().getName(), is("two"));
     }
     
     @Test
@@ -351,7 +351,7 @@ public class TestGameMau {
         spyGame.popFirstCardToMiddleStack();
         doNothing().when(spyGame).checkRulesForCard(any());
         doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
-        doReturn(false).when(spyGame).isNextPlayerStay();
+        doReturn(false).when(spyGame).isNextplayerstay();
         
         for(int i = 0; i < 9; i++) {
             spyGame.throwPlayerCardToMiddleStack(null);
@@ -374,7 +374,7 @@ public class TestGameMau {
         spyGame.popFirstCardToMiddleStack();
         doNothing().when(spyGame).checkRulesForCard(any());
         doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
-        doReturn(false).when(spyGame).isNextPlayerStay();
+        doReturn(false).when(spyGame).isNextplayerstay();
         
         for(int i = 0; i < 9; i++) {
             spyGame.throwPlayerCardToMiddleStack(null);
@@ -401,19 +401,19 @@ public class TestGameMau {
         spyGame.popFirstCardToMiddleStack();
         doNothing().when(spyGame).checkRulesForCard(any());
         doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
-        doReturn(false).when(spyGame).isNextPlayerStay();
+        doReturn(false).when(spyGame).isNextplayerstay();
         
         for(int i = 0; i < 9; i++) {
             spyGame.throwPlayerCardToMiddleStack(null);
         }
         Stack<SkatCard> checkStack = new Stack();
-        checkStack.setSize(spyGame.getMiddleStack().size());
-        Collections.copy(checkStack, spyGame.getMiddleStack());
-        spyGame.getDrawStack().removeAllElements();
+        checkStack.setSize(spyGame.getMiddlestack().size());
+        Collections.copy(checkStack, spyGame.getMiddlestack());
+        spyGame.getDrawstack().removeAllElements();
         
-        spyGame.getDrawStack().pop();
+        spyGame.getDrawstack().pop();
         
-        assertThat(spyGame.getDrawStack(), hasItem(checkStack.get(1)));
+        assertThat(spyGame.getDrawstack(), hasItem(checkStack.get(1)));
     }
 
 }

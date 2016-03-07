@@ -8,8 +8,10 @@
 package com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions;
 
 /**
- *
- * @author ngeis
+ * An Exception that is thrown if the maximum number of players reached.
+ * @author Nico Geisler (geislern85@googlemail.com)
+ * @version $Id$
+ * @since 0.0.1
  */
 public class NoMorePlayersAllowedException extends Throwable {
 

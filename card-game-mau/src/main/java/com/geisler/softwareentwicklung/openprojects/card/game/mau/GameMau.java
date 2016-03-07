@@ -9,8 +9,8 @@ package com.geisler.softwareentwicklung.openprojects.card.game.mau;
 
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatColor;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatValue;
-import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.NoMorePlayersAllowedException;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.CardByRulesNotAllowedException;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.NoMorePlayersAllowedException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,31 +18,53 @@ import java.util.List;
 import java.util.Stack;
 
 /**
+ * The main game class to play the mau game.
  *
- * @author ngeis
+ * @author Nico Geisler (geislern85@googlemail.com)
+ * @version $Id$
+ * @since 0.0.1
  */
 public class GameMau {
 
-    private GameMauPlayer activePlayer;
-    
-    private EnumSkatColor choosedColor;
-    
-    private Stack<SkatCard> drawStack;
-    private Stack<SkatCard> middleStack;
-    private Stack<SkatCard> extraDrawStack;
+    /**
+     * The active player of the game.
+     */
+    private GameMauPlayer player;
+    /**
+     * The choosed color of the player or npc during game.
+     */
+    private EnumSkatColor choosedcolor;
+    /**
+     * The stack where players and npcs draw their cards.
+     */
+    private Stack<SkatCard> drawstack;
+    /**
+     * The stack where players and npcs drop their cards.
+     */
+    private Stack<SkatCard> middlestack;
+    /**
+     * The stack where players and npcs draw their extra cards.
+     */
+    private Stack<SkatCard> extradrawstack;
+    /**
+     * The map of all players with an idx for identification.
+     */
     private HashMap<Integer, GameMauPlayer> players;
-    private boolean nextPlayerStay;
+    /**
+     * A boolean that shows if next player have to stay for the next round.
+     */
+    private boolean nextplayerstay;
     private boolean running;
     private GameMauPlayer winner;
 
     
     public GameMau() {
         players = new HashMap<>();
-        drawStack = new Stack();
+        drawstack = new Stack();
         initialiseDrawStack();
-        middleStack = new Stack<>();
-        extraDrawStack = new Stack<>();
-        choosedColor = null;
+        middlestack = new Stack<>();
+        extradrawstack = new Stack<>();
+        choosedcolor = null;
         winner = null;
     }
     /**
@@ -56,47 +78,47 @@ public class GameMau {
         }
         List<SkatCard> listHandCards = getPlayersInitialCards();
         newPlayer.giveHandCards(listHandCards);
-        activePlayer = newPlayer;
+        player = newPlayer;
         this.players.put(this.players.size() + 1, newPlayer);
     }
     
-    public GameMauPlayer getActivePlayer() {
-        return activePlayer;
+    public GameMauPlayer getPlayer() {
+        return player;
     }
 
-    public Stack<SkatCard> getMiddleStack() {
-        return middleStack;
+    public Stack<SkatCard> getMiddlestack() {
+        return middlestack;
     }
 
-    Stack<SkatCard> getDrawStack() {
-        if(drawStack.isEmpty()) {
+    Stack<SkatCard> getDrawstack() {
+        if(drawstack.isEmpty()) {
             pushMiddleStackToDrawStackShuffled();
         }
-        return drawStack;
+        return drawstack;
     }
     
     public void throwPlayerCardToMiddleStack(Integer index) throws CardByRulesNotAllowedException {
         if(index == null) {
             index = 0;
         }
-        SkatCard card = getActivePlayer().getSelectedHandCardToThrow(index);
+        SkatCard card = getPlayer().getSelectedHandCardToThrow(index);
         try {
             checkRulesForCard(card);
-            if(card.getValue().equals(EnumSkatValue.JACK) && choosedColor == null) {
-                choosedColor = getActivePlayer().getSelectedColor();
+            if(card.getValue().equals(EnumSkatValue.JACK) && choosedcolor == null) {
+                choosedcolor = getPlayer().getSelectedColor();
             }
-            middleStack.push(card);
-            if(getActivePlayer().getHandSize() < 1) {
-                winner = getActivePlayer();
+            middlestack.push(card);
+            if(getPlayer().getHandSize() < 1) {
+                winner = getPlayer();
                 setRunning(false);
             }
             if(card.getValue().equals(EnumSkatValue.SEVEN)) {
-                extraDrawStack.push(getDrawStack().pop());
-                extraDrawStack.push(getDrawStack().pop());
+                extradrawstack.push(getDrawstack().pop());
+                extradrawstack.push(getDrawstack().pop());
             }
         } catch (CardByRulesNotAllowedException e) {
-            getActivePlayer().giveHandCard(getDrawStack().pop());
-            getActivePlayer().giveHandCard(card);
+            getPlayer().giveHandCard(getDrawstack().pop());
+            getPlayer().giveHandCard(card);
         }        
         pushToNextPlayerTurn();
         checkActivePlayersNextCardsForSeven();
@@ -107,7 +129,7 @@ public class GameMau {
     }
 
     public void popFirstCardToMiddleStack() {
-        this.middleStack.add(getDrawStack().firstElement()); // initialise Middle-Stack for playing
+        this.middlestack.add(getDrawstack().firstElement()); // initialise Middle-Stack for playing
     }
     
     /**
@@ -118,27 +140,27 @@ public class GameMau {
     List<SkatCard> getPlayersInitialCards() {
         List<SkatCard> listCards = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            listCards.add(getDrawStack().pop());
+            listCards.add(getDrawstack().pop());
         }
         return listCards;
     }
 
     /**
-     * initialise and shuffles the drawStack for play
+     * initialise and shuffles the drawstack for play
      */
     private void initialiseDrawStack() {
         for (EnumSkatColor color : EnumSkatColor.values()) {
             for (EnumSkatValue value : EnumSkatValue.values()) {
-                this.drawStack.add(new SkatCard(color, value));
+                this.drawstack.add(new SkatCard(color, value));
             }
         }
-        Collections.shuffle(drawStack);
+        Collections.shuffle(drawstack);
     }
 
     private void pushToNextPlayerTurn() {
         Integer idx = 0;
         for (HashMap.Entry<Integer, GameMauPlayer> entry : players.entrySet()) {
-            if(entry.getValue().equals(activePlayer)) {
+            if(entry.getValue().equals(player)) {
                 idx = entry.getKey();
             }
         }
@@ -149,19 +171,19 @@ public class GameMau {
             idx++;
         }
         // Ace-Rule
-        if(isNextPlayerStay()) {
+        if(isNextplayerstay()) {
             if(idx == players.size()) {
                 idx = 1;
             } else {
                 idx++;
             }
-            nextPlayerStay = false;
+            nextplayerstay = false;
         }
-        activePlayer = players.get(idx);
+        player = players.get(idx);
     }
 
     void checkRulesForCard(SkatCard playerCard) throws CardByRulesNotAllowedException {
-        SkatCard stackCard = getMiddleStack().peek();
+        SkatCard stackCard = getMiddlestack().peek();
         boolean ruleBreak = false;
         // Standard-Rules
         if(!stackCard.getColor().equals(playerCard.getColor())
@@ -170,12 +192,12 @@ public class GameMau {
             ruleBreak = true;
         }
         // Color-Chooser Rule
-        if(choosedColor != null && !choosedColor.equals(playerCard.getColor())) {
+        if(choosedcolor != null && !choosedcolor.equals(playerCard.getColor())) {
             ruleBreak = true;
-        } else if (choosedColor != null
-                && choosedColor.equals(playerCard.getColor())) {
+        } else if (choosedcolor != null
+                && choosedcolor.equals(playerCard.getColor())) {
             ruleBreak = false;
-            choosedColor = null;
+            choosedcolor = null;
         }
         // Jack on Jack Rule
         if(stackCard.getValue().equals(EnumSkatValue.JACK)
@@ -184,15 +206,15 @@ public class GameMau {
         }
         if(!ruleBreak) {
             if(playerCard.getValue().equals(EnumSkatValue.ACE)) {
-                nextPlayerStay = true;
+                nextplayerstay = true;
             }
         } else {
             throw new CardByRulesNotAllowedException();
         }
     }
 
-    public EnumSkatColor getChoosedColor() {
-        return choosedColor;
+    public EnumSkatColor getChoosedcolor() {
+        return choosedcolor;
     }
 
     /**
@@ -204,18 +226,18 @@ public class GameMau {
         if(checkPlayerHasCard(EnumSkatValue.SEVEN)) {
             return;
         }
-        int size = extraDrawStack.size();
+        int size = extradrawstack.size();
         for(int i = 0; i < size ; i++) {
-            activePlayer.giveHandCard(extraDrawStack.pop());
+            player.giveHandCard(extradrawstack.pop());
         }
     }
     
-    public boolean isNextPlayerStay() {
-        return nextPlayerStay;
+    public boolean isNextplayerstay() {
+        return nextplayerstay;
     }
 
     boolean checkPlayerHasCard(EnumSkatValue enumSkatValue) {
-        for (SkatCard skatCard : activePlayer.getHandCards()) {
+        for (SkatCard skatCard : player.getHandCards()) {
             if(skatCard.getValue().equals(EnumSkatValue.SEVEN)) {
                 return true;
             }
@@ -241,15 +263,15 @@ public class GameMau {
     }
 
     void pushMiddleStackToDrawStackShuffled() {
-        SkatCard topMiddleStackCard = getMiddleStack().pop();
+        SkatCard topMiddleStackCard = getMiddlestack().pop();
         
-        while(!getMiddleStack().isEmpty()) {
-            drawStack.push(getMiddleStack().pop());
+        while(!getMiddlestack().isEmpty()) {
+            drawstack.push(getMiddlestack().pop());
         }
         // return CardOnTop to MiddleStack
-        getMiddleStack().push(topMiddleStackCard);
+        getMiddlestack().push(topMiddleStackCard);
         
-        // Shuffle drawStack
-        Collections.shuffle(drawStack);
+        // Shuffle drawstack
+        Collections.shuffle(drawstack);
     }
 }
