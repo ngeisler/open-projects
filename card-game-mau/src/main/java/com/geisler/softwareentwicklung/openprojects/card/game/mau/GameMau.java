@@ -26,7 +26,10 @@ import java.util.Stack;
  * @since 0.0.1
  */
 public class GameMau {
-
+    /**
+     * The max player size for a mau game.
+     */
+    public static final int MAX_PLAYERS = 4;
     /**
      * The active player of the game.
      */
@@ -60,7 +63,8 @@ public class GameMau {
      */
     private boolean running;
     /**
-     * A GameMauPlayer reference to save the winner of the game for later purposes.
+     * A GameMauPlayer reference to save the winner
+     * of the game for later purposes.
      */
     private GameMauPlayer winner;
     /**
@@ -68,56 +72,57 @@ public class GameMau {
      * the stacks and maps for later acting.
      */
     public GameMau() {
-        players = new HashMap<>();
-        drawstack = new Stack();
-        initialiseDrawStack();
-        middlestack = new Stack<>();
-        extracards = new Stack<>();
-        choosedcolor = null;
-        winner = null;
+        this.players = new HashMap<>();
+        this.drawstack = new Stack();
+        this.initialiseDrawStack();
+        this.middlestack = new Stack<>();
+        this.extracards = new Stack<>();
+        this.choosedcolor = null;
+        this.winner = null;
     }
     /**
      * Adds a new player to the current game.
-     * The player is given by the parameter. 
+     * The player is given by the parameter.
      * An Exception is thrown if the max player size is reached.
-     * 
-     * @param newPlayer The new player given as a GameMauPlayer-instance.
+     *
+     * @param newplayer The new player given as a GameMauPlayer-instance.
      * @throws NoMorePlayersAllowedException if max size of players is reached.
      */
-    public void addNewPlayerToGame(GameMauPlayer newPlayer) throws NoMorePlayersAllowedException {
-        if(this.players.size() == 4) {
+    public final void addNewPlayerToGame(final GameMauPlayer newplayer)
+        throws NoMorePlayersAllowedException {
+        if (this.getPlayers().size() == MAX_PLAYERS) {
             throw new NoMorePlayersAllowedException();
         }
-        List<SkatCard> listHandCards = getPlayersInitialCards();
-        newPlayer.giveHandCards(listHandCards);
-        player = newPlayer;
-        this.players.put(this.players.size() + 1, newPlayer);
+        final List<SkatCard> handcards = this.getPlayersInitialCards();
+        newplayer.giveHandCards(handcards);
+        this.player = newplayer;
+        this.getPlayers().put(this.getPlayers().size() + 1, newplayer);
     }
     /**
      * Returns the active Player as an instance of GameMauPlayer.
-     * 
-     * @return the active player as an instance of GameMauPlayer.
+     *
+     * @return The active player as an instance of GameMauPlayer.
      */
-    public GameMauPlayer getPlayer() {
+    public final GameMauPlayer getPlayer() {
         return this.player;
     }
     /**
      * Returns the current middlestack of the running game.
-     * 
-     * @return the current middlestack of type Stack
+     *
+     * @return The current middlestack of type Stack
      */
-    public Stack<SkatCard> getMiddlestack() {
+    public final Stack<SkatCard> getMiddlestack() {
         return this.middlestack;
     }
     /**
      * Returns the drawstack of the game. If the drawstack is empty the
      * middlestack will be shuffled an placed to the drawstack.
-     * 
-     * @return the current drawstack with type Stack
+     *
+     * @return The current drawstack with type Stack
      */
     Stack<SkatCard> getDrawstack() {
-        if(this.drawstack.isEmpty()) {
-            pushMiddleStackToDrawStackShuffled();
+        if (this.drawstack.isEmpty()) {
+            this.pushMiddleStackToDrawStackShuffled();
         }
         return this.drawstack;
     }
@@ -126,25 +131,26 @@ public class GameMau {
      * the first card of players hand will be choosed.
      * Could throw an Exception if card is not allowed by the rules.
      *
-     * @param index the index of the choosed player card.
+     * @param index The index of the choosed player card.
      * @throws CardByRulesNotAllowedException if card is not allowed by rules.
      */
-    public void throwPlayerCardToMiddleStack(Integer index) throws CardByRulesNotAllowedException {
-        if(index == null) {
+    public void throwPlayerCardToMiddleStack(Integer index)
+        throws CardByRulesNotAllowedException {
+        if (index == null) {
             index = 0;
         }
         SkatCard card = getPlayer().getSelectedHandCardToThrow(index);
         try {
             checkRulesForCard(card);
-            if(card.getValue().equals(EnumSkatValue.JACK) && getChoosedcolor() == null) {
+            if (card.getValue().equals(EnumSkatValue.JACK) && getChoosedcolor() == null) {
                 this.choosedcolor = getPlayer().getSelectedColor();
             }
             getMiddlestack().push(card);
-            if(getPlayer().getHandSize() < 1) {
+            if (getPlayer().getHandSize() < 1) {
                 this.winner = getPlayer();
                 setRunning(false);
             }
-            if(card.getValue().equals(EnumSkatValue.SEVEN)) {
+            if (card.getValue().equals(EnumSkatValue.SEVEN)) {
                 this.extracards.push(getDrawstack().pop());
                 this.extracards.push(getDrawstack().pop());
             }
@@ -201,19 +207,19 @@ public class GameMau {
     private void pushToNextPlayerTurn() {
         Integer idx = 0;
         for (HashMap.Entry<Integer, GameMauPlayer> entry : getPlayers().entrySet()) {
-            if(entry.getValue().equals(getPlayer())) {
+            if (entry.getValue().equals(getPlayer())) {
                 idx = entry.getKey();
             }
         }
         // Standard
-        if(idx == getPlayers().size()) {
+        if (idx == getPlayers().size()) {
             idx = 1;
         } else {
             idx++;
         }
         // Ace-Rule
-        if(isNextplayerstay()) {
-            if(idx == getPlayers().size()) {
+        if (isNextplayerstay()) {
+            if (idx == getPlayers().size()) {
                 idx = 1;
             } else {
                 idx++;
@@ -234,13 +240,13 @@ public class GameMau {
         SkatCard stackCard = getMiddlestack().peek();
         boolean ruleBreak = false;
         // Standard-Rules
-        if(!stackCard.getColor().equals(playerCard.getColor())
+        if (!stackCard.getColor().equals(playerCard.getColor())
                 && !stackCard.getValue().equals(playerCard.getValue())
                 && !playerCard.getValue().equals(EnumSkatValue.JACK)) {
             ruleBreak = true;
         }
         // Color-Chooser Rule
-        if(choosedcolor != null && !choosedcolor.equals(playerCard.getColor())) {
+        if (choosedcolor != null && !choosedcolor.equals(playerCard.getColor())) {
             ruleBreak = true;
         } else if (choosedcolor != null
                 && choosedcolor.equals(playerCard.getColor())) {
@@ -248,12 +254,12 @@ public class GameMau {
             choosedcolor = null;
         }
         // Jack on Jack Rule
-        if(stackCard.getValue().equals(EnumSkatValue.JACK)
+        if (stackCard.getValue().equals(EnumSkatValue.JACK)
                 && playerCard.getValue().equals(EnumSkatValue.JACK)) {
             ruleBreak = true;
         }
-        if(!ruleBreak) {
-            if(playerCard.getValue().equals(EnumSkatValue.ACE)) {
+        if (!ruleBreak) {
+            if (playerCard.getValue().equals(EnumSkatValue.ACE)) {
                 playerstay = true;
             }
         } else {
@@ -274,7 +280,7 @@ public class GameMau {
      * if there is no seven on hand.
      */
     void checkActivePlayersNextCardsForSeven() {
-        if(checkPlayerHasCard(EnumSkatValue.SEVEN)) {
+        if (checkPlayerHasCard(EnumSkatValue.SEVEN)) {
             return;
         }
         int size = this.extracards.size();
@@ -299,7 +305,7 @@ public class GameMau {
      */
     boolean checkPlayerHasCard(EnumSkatValue enumSkatValue) {
         for (SkatCard skatCard : getPlayer().getHandCards()) {
-            if(skatCard.getValue().equals(enumSkatValue)) {
+            if (skatCard.getValue().equals(enumSkatValue)) {
                 return true;
             }
         }
