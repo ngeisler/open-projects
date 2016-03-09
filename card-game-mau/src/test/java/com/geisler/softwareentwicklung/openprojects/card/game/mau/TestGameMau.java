@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -90,7 +91,7 @@ public class TestGameMau {
         GameMau game = new GameMau();
         game.addNewPlayerToGame(new GameMauPlayer("one"));
         game.addNewPlayerToGame(new GameMauPlayer("two"));
-        HashMap<Integer, GameMauPlayer> players = game.getPlayers();
+        Map<Integer, GameMauPlayer> players = game.getPlayers();
         players.values().stream().forEach((player) -> {
             assertThat(player.getHandSize(), is(5));
         });
@@ -102,7 +103,7 @@ public class TestGameMau {
         GameMau game = new GameMau();
         game.addNewPlayerToGame(new GameMauPlayer("one"));
         game.addNewPlayerToGame(new GameMauPlayer("two"));
-        HashMap<Integer, GameMauPlayer> players = game.getPlayers();
+        Map<Integer, GameMauPlayer> players = game.getPlayers();
         assertThat(players.size(), is(greaterThanOrEqualTo(2)));
     }
     

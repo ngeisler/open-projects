@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -45,11 +46,11 @@ public class GameMau {
     /**
      * The stack where players and npcs draw their extra cards.
      */
-    private Stack<SkatCard> extradrawstack;
+    private Stack<SkatCard> extracards;
     /**
      * The map of all players with an idx for identification.
      */
-    private HashMap<Integer, GameMauPlayer> players;
+    private Map<Integer, GameMauPlayer> players;
     /**
      * A boolean that shows if next player have to stay for the next round.
      */
@@ -63,7 +64,7 @@ public class GameMau {
         drawstack = new Stack();
         initialiseDrawStack();
         middlestack = new Stack<>();
-        extradrawstack = new Stack<>();
+        extracards = new Stack<>();
         choosedcolor = null;
         winner = null;
     }
@@ -113,8 +114,8 @@ public class GameMau {
                 setRunning(false);
             }
             if(card.getValue().equals(EnumSkatValue.SEVEN)) {
-                extradrawstack.push(getDrawstack().pop());
-                extradrawstack.push(getDrawstack().pop());
+                extracards.push(getDrawstack().pop());
+                extracards.push(getDrawstack().pop());
             }
         } catch (CardByRulesNotAllowedException e) {
             getPlayer().giveHandCard(getDrawstack().pop());
@@ -124,7 +125,7 @@ public class GameMau {
         checkActivePlayersNextCardsForSeven();
     }
 
-    public HashMap<Integer, GameMauPlayer> getPlayers() {
+    public Map<Integer, GameMauPlayer> getPlayers() {
         return this.players;
     }
 
@@ -226,9 +227,9 @@ public class GameMau {
         if(checkPlayerHasCard(EnumSkatValue.SEVEN)) {
             return;
         }
-        int size = extradrawstack.size();
+        int size = extracards.size();
         for(int i = 0; i < size ; i++) {
-            player.giveHandCard(extradrawstack.pop());
+            player.giveHandCard(extracards.pop());
         }
     }
     
