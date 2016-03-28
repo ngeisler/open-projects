@@ -6,6 +6,6 @@
  * are met: no conditions.
  */
 /**
- * Package for tests of single player game snake.
+ * Package for classes of single player game snake.
  */
 package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;

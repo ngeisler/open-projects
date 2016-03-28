@@ -7,13 +7,9 @@
  */
 package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
-//import org.junit.Test;
-//import static org.junit.Assert.*;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.Test;
 
 /**
  * The test game class for the tests of the snake game.
@@ -23,29 +19,25 @@ import org.junit.BeforeClass;
  * @since 0.0.1
  */
 public class TestGameSnake {
-    
+
+    /**
+     * The class under test.
+     */
+    private final GameSnake cut;
+
+    /**
+     * The constructor to initilize the final members of the test class.
+     */
     public TestGameSnake() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
+        this.cut = new GameSnake();
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
+    /**
+     * Test should ckeck if the game is in a running state after starting it.
+     */
+    @Test
+    public final void gameSnakeSouldBeRunningIfGameIsStarted() {
+        this.cut.startGame();
+        MatcherAssert.assertThat(this.cut.isRunning(), Matchers.is(true));
+    }
 }
