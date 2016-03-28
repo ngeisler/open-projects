@@ -13,6 +13,7 @@ import com.geisler.softwareentwicklung.openprojects.card.game.mau.GameMau;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.GameMauPlayer;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.NoMorePlayersAllowedException;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.SkatCard;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.interfaces.IGameMau;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -34,7 +35,7 @@ public class GameMauView extends JFrame {
     
     public GameMauView() throws NoMorePlayersAllowedException {
         GameMauPanel panel = new GameMauPanel(1024, 600, this);
-        GameMau game = new GameMau();
+        IGameMau game = GameMau.getInstanceOfGameMau();
         this.setTitle("Mau Mau Spiel");
         this.setLocation(100, 100);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,7 +49,7 @@ public class GameMauView extends JFrame {
         thread.start();
     }
     
-    private void doInitialization(GameMauPanel panel, GameMau game) throws NoMorePlayersAllowedException {
+    private void doInitialization(GameMauPanel panel, IGameMau game) throws NoMorePlayersAllowedException {
         panel.setLast(System.nanoTime());
         panel.loadCardPics();
         Integer playerCount = getPlayerCountFromUser();
@@ -82,7 +83,7 @@ public class GameMauView extends JFrame {
         
         long delta;
         long last;
-        private GameMau game;
+        private IGameMau game;
 
         public void setLast(long last) {
             this.last = last;
@@ -98,7 +99,7 @@ public class GameMauView extends JFrame {
         public void run() {
             
             while(parent.isVisible()
-                    && getGame().isRunning()) {
+                    && getGame().isGameRunning()) {
                 
                 computeDelta();
                 
@@ -146,23 +147,23 @@ public class GameMauView extends JFrame {
             
             if(getGame() != null) {
                 g.setColor(Color.black);
-                if(getGame().getPlayers().size() > 0) {
-                    g.drawString(getGame().getPlayers().get(1).getName(), 460, 460);
+                if(getGame().getPlayerIds().size() > 0) {
+                    g.drawString(getGame().getPlayerNameWithId(1), 460, 460);
                 }
-                if(getGame().getPlayers().size() > 1) {
-                    g.drawString(getGame().getPlayers().get(2).getName(), 75, 160);
+                if(getGame().getPlayerIds().size() > 1) {
+                    g.drawString(getGame().getPlayerNameWithId(2), 75, 160);
                 }
-                if(getGame().getPlayers().size() > 2) {
-                    g.drawString(getGame().getPlayers().get(3).getName(), 460, 10);
+                if(getGame().getPlayerIds().size() > 2) {
+                    g.drawString(getGame().getPlayerNameWithId(3), 460, 10);
                 }
-                if(getGame().getPlayers().size() > 3) {
-                    g.drawString(getGame().getPlayers().get(4).getName(), 850, 160);
+                if(getGame().getPlayerIds().size() > 3) {
+                    g.drawString(getGame().getPlayerNameWithId(4), 850, 160);
                 }
             }
             // draw middleCard
             SkatCard card = null;
             if(getGame() != null) {
-                card = getGame().getMiddlestack().peek();
+                card = getGame().getMiddleStackCardOnTop();
             }
             if(card != null && images != null 
                     && images[card.getColor().getIdx()][card.getValue().getIdx()] != null) {
@@ -171,7 +172,7 @@ public class GameMauView extends JFrame {
             // draw player cards
             if(getGame() != null) {
                 int i = 0;
-                for(SkatCard playerCard : getGame().getPlayer().getHandCards()) {
+                for(SkatCard playerCard : getGame().getPlayerHandCardsWithId(0)) {
                     int space = i * 5;
                     BufferedImage img = images[playerCard.getColor().getIdx()][playerCard.getValue().getIdx()];
                     g.drawImage(img, 
@@ -216,12 +217,12 @@ public class GameMauView extends JFrame {
             this.images = pics;
         }
 
-        private void startGame(GameMau game) {
+        private void startGame(IGameMau game) {
             this.game = game;
             this.game.start();
         }
 
-        private GameMau getGame() {
+        private IGameMau getGame() {
             return this.game;
         }
     }

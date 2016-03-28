@@ -11,11 +11,13 @@ import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkat
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatValue;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.CardByRulesNotAllowedException;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.NoMorePlayersAllowedException;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.interfaces.IGameMau;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -25,7 +27,7 @@ import java.util.Stack;
  * @version $Id$
  * @since 0.0.1
  */
-public class GameMau {
+public class GameMau implements IGameMau {
     /**
      * The max player size for a mau game.
      */
@@ -71,7 +73,7 @@ public class GameMau {
      * The standard constructor for a maugame. Most parts here are to initialise
      * the stacks and maps for later acting.
      */
-    public GameMau() {
+    private GameMau() {
         this.players = new HashMap<>();
         this.drawstack = new Stack();
         this.initialiseDrawStack();
@@ -80,73 +82,109 @@ public class GameMau {
         this.choosedcolor = null;
         this.winner = null;
     }
+
     /**
-     * Adds a new player to the current game.
-     * The player is given by the parameter.
-     * An Exception is thrown if the max player size is reached.
+     * The standard constructor for a maugame. Most parts here are to initialise
+     * the stacks and maps for later acting.
      *
-     * @param newplayer The new player given as a GameMauPlayer-instance.
-     * @throws NoMorePlayersAllowedException if max size of players is reached.
+     * @param playernames A List of playernames for the game.
+     * @throws NoMorePlayersAllowedException If more than 4 players added.
      */
+    public GameMau(final List<String> playernames)
+        throws NoMorePlayersAllowedException {
+        this();
+        for (final String playername : playernames) {
+            final GameMauPlayer gameplayer = new GameMauPlayer(playername);
+            this.addNewPlayerToCurrentGame(gameplayer);
+        }
+    }
+
+    /**
+     * Returns an instance of GameMau with defined options and initializations.
+     *
+     * @return GameMau An instance of GameMau.
+     */
+    public static IGameMau getInstanceOfGameMau() {
+        return new GameMau();
+    }
+
+    @Override
     public final void addNewPlayerToGame(final GameMauPlayer newplayer)
         throws NoMorePlayersAllowedException {
-        if (this.getPlayers().size() == MAX_PLAYERS) {
-            throw new NoMorePlayersAllowedException();
-        }
-        final List<SkatCard> handcards = this.getPlayersInitialCards();
-        newplayer.giveHandCards(handcards);
-        this.player = newplayer;
-        this.getPlayers().put(this.getPlayers().size() + 1, newplayer);
+        this.addNewPlayerToCurrentGame(newplayer);
     }
-    /**
-     * Returns the active Player as an instance of GameMauPlayer.
-     *
-     * @return The active player as an instance of GameMauPlayer.
-     */
-    public final GameMauPlayer getPlayer() {
-        return this.player;
+
+    @Override
+    public final int getMiddleStackSize() {
+        return this.getMiddlestack().size();
     }
-    /**
-     * Returns the current middlestack of the running game.
-     *
-     * @return The current middlestack of type Stack
-     */
-    public final Stack<SkatCard> getMiddlestack() {
-        return this.middlestack;
+
+    @Override
+    public final int getPlayersHandSize() {
+        return this.getPlayer().getHandSize();
     }
-    /**
-     * Returns the drawstack of the game. If the drawstack is empty the
-     * middlestack will be shuffled an placed to the drawstack.
-     *
-     * @return The current drawstack with type Stack
-     */
-    Stack<SkatCard> getDrawstack() {
-        if (this.drawstack.isEmpty()) {
-            this.pushMiddleStackToDrawStackShuffled();
-        }
-        return this.drawstack;
+
+    @Override
+    public final String getPlayersName() {
+        return this.getPlayer().getName();
     }
-    /**
-     * Throws a card from active Player with given index. If no index is passed
-     * the first card of players hand will be choosed.
-     * Could throw an Exception if card is not allowed by the rules.
-     *
-     * @param index The index of the choosed player card.
-     * @throws CardByRulesNotAllowedException if card is not allowed by rules.
-     */
-    public void throwPlayerCardToMiddleStack(Integer index)
+
+    @Override
+    public final int getPlayerHandSizeWithId(final Integer id) {
+        return this.getPlayers().get(id).getHandSize();
+    }
+
+    @Override
+    public final String getPlayerNameWithId(final Integer id) {
+        return this.getPlayers().get(id).getName();
+    }
+
+    @Override
+    public final List<SkatCard> getPlayerHandCardsWithId(final Integer id) {
+        return this.getPlayers().get(id).getHandCards();
+    }
+
+    @Override
+    public final SkatCard getMiddleStackCardOnTop() {
+        return this.getMiddlestack().peek();
+    }
+
+    @Override
+    public final Set<Integer> getPlayerIds() {
+        return this.getPlayers().keySet();
+    }
+
+    @Override
+    public void checkRulesForCard(final SkatCard playercard)
         throws CardByRulesNotAllowedException {
-        if (index == null) {
-            index = 0;
+        checkGameRules(playercard);
+    }
+
+    @Override
+    public void checkActivePlayersNextCardsForSeven() {
+        this.checkRuleSeven();
+    }
+
+    @Override
+    public final void throwUncheckedCardToMiddleStack(final SkatCard card) {
+        this.getMiddlestack().push(card);
+    }
+
+    @Override
+    public void throwPlayerCardToMiddleStack(final Integer cardindex)
+        throws CardByRulesNotAllowedException {
+        Integer handindex = 0;
+        if (cardindex != null) {
+            handindex = cardindex;
         }
-        SkatCard card = getPlayer().getSelectedHandCardToThrow(index);
+        SkatCard card = getPlayer().getSelectedHandCardToThrow(handindex);
         try {
             checkRulesForCard(card);
-            if (card.getValue().equals(EnumSkatValue.JACK) && getChoosedcolor() == null) {
+            if (card.getValue().equals(EnumSkatValue.JACK) && getChoosedGameColor() == null) {
                 this.choosedcolor = getPlayer().getSelectedColor();
             }
             getMiddlestack().push(card);
-            if (getPlayer().getHandSize() < 1) {
+            if (getPlayersHandSize() < 1) {
                 this.winner = getPlayer();
                 setRunning(false);
             }
@@ -161,33 +199,190 @@ public class GameMau {
         pushToNextPlayerTurn();
         checkActivePlayersNextCardsForSeven();
     }
+
+    @Override
+    public EnumSkatColor getChoosedGameColor() {
+        return this.choosedcolor;
+    }
+
+    @Override
+    public boolean hasNextPlayerToStay() {
+        return this.playerstay;
+    }
+
+    @Override
+    public boolean isGameRunning() {
+        return this.running;
+    }
+
+    @Override
+    public void start() {
+        this.popFirstCardToMiddleStack();
+        this.running = true;
+    }
+
+    @Override
+    public List<SkatCard> popCardsFromStackByAmount(final int numberofcards) {
+        List<SkatCard> listCards = new ArrayList<>();
+        for (int i = 0; i < numberofcards; i++) {
+            listCards.add(this.getDrawstack().pop());
+        }
+        return listCards;
+    }
+
+    @Override
+    public String getWinnersName() {
+        return this.winner.getName();
+    }
+
+    /**
+     * Returns the active Player as an instance of GameMauPlayer.
+     *
+     * @return The active player as an instance of GameMauPlayer.
+     */
+    public final GameMauPlayer getPlayer() {
+        return this.player;
+    }
+
     /**
      * Returns a Map of players which are currently playing the game.
      * 
      * @return a map of players of type GameMauPlayer.
      */
-    public Map<Integer, GameMauPlayer> getPlayers() {
+    public final Map<Integer, GameMauPlayer> getPlayers() {
         return this.players;
     }
+
     /**
      * Initialise the Middle-Stack for playing and pop
      * the first card of drawstack to middlestack.
      */
-    public void popFirstCardToMiddleStack() {
-        getMiddlestack().add(getDrawstack().firstElement());
+    public final void popFirstCardToMiddleStack() {
+        this.getMiddlestack().add(getDrawstack().firstElement());
     }
-    
+
     /**
-     * Returns the initial cards from the drawstack.
-     * 
-     * @return a list of initial cards from drawstack to a player.
+     * Returns the drawstack of the game. If the drawstack is empty the
+     * middlestack will be shuffled an placed to the drawstack.
+     *
+     * @return The current drawstack with type Stack
      */
-    List<SkatCard> getPlayersInitialCards() {
-        List<SkatCard> listCards = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            listCards.add(getDrawstack().pop());
+    final Stack<SkatCard> getDrawstack() {
+        if (this.drawstack.isEmpty()) {
+            this.pushMiddleStackToDrawStackShuffled();
         }
-        return listCards;
+        return this.drawstack;
+    }
+
+    @Override
+    public boolean hasPlayerCardValue(final EnumSkatValue cardvalue) {
+        for (SkatCard skatCard : getPlayer().getHandCards()) {
+            if (skatCard.getValue().equals(cardvalue)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Pushes the middlestack to the drawstack, except for the card on top, 
+     * and shuffled all to fill the drawstack.
+     */
+    final void pushMiddleStackToDrawStackShuffled() {
+        SkatCard topMiddleStackCard = getMiddlestack().pop();
+        
+        while(!getMiddlestack().isEmpty()) {
+            drawstack.push(getMiddlestack().pop());
+        }
+        // return CardOnTop to MiddleStack
+        getMiddlestack().push(topMiddleStackCard);
+        
+        // Shuffle drawstack
+        Collections.shuffle(drawstack);
+    }
+
+    /**
+     * Returns the current middlestack of the running game.
+     *
+     * @return The current middlestack of type Stack
+     */
+    private Stack<SkatCard> getMiddlestack() {
+        return this.middlestack;
+    }
+
+    /**
+     * Checks a given SkatCard to the last middlestack card and the rules
+     * of the mau game.
+     * Throws an exception if a rule is violated.
+     *
+     * @param playercard Usually the player card to check for rule-violations.
+     * @throws CardByRulesNotAllowedException if a rule is violated by given card.
+     */
+    private void checkGameRules(final SkatCard playercard) throws CardByRulesNotAllowedException {
+        SkatCard stackcard = this.getMiddlestack().peek();
+        boolean rulebreak = false;
+        if (stackcard == null || playercard == null) {
+            throw new CardByRulesNotAllowedException();
+        }
+        // Standard-Rules
+        if (!stackcard.getColor().equals(playercard.getColor())
+                && !stackcard.getValue().equals(playercard.getValue())
+                && !playercard.getValue().equals(EnumSkatValue.JACK)) {
+            rulebreak = true;
+        }
+        // Color-Chooser Rule
+        if (this.choosedcolor != null && !this.choosedcolor.equals(playercard.getColor())) {
+            rulebreak = true;
+        } else if (this.choosedcolor != null
+                && this.choosedcolor.equals(playercard.getColor())) {
+            rulebreak = false;
+            this.choosedcolor = null;
+        }
+        // Jack on Jack Rule
+        if (stackcard.getValue().equals(EnumSkatValue.JACK)
+                && playercard.getValue().equals(EnumSkatValue.JACK)) {
+            rulebreak = true;
+        }
+        if (!rulebreak) {
+            if (playercard.getValue().equals(EnumSkatValue.ACE)) {
+                this.playerstay = true;
+            }
+        } else {
+            throw new CardByRulesNotAllowedException();
+        }
+    }
+
+    /**
+     * Adds a new player to the current game.
+     * The player is given by the parameter.
+     * An Exception is thrown if the max player size is reached.
+     *
+     * @param newplayer The new player given as a GameMauPlayer-instance.
+     * @throws NoMorePlayersAllowedException if max size of players is reached.
+     */
+    private void addNewPlayerToCurrentGame(final GameMauPlayer newplayer)
+        throws NoMorePlayersAllowedException {
+        if (this.getPlayers().size() == MAX_PLAYERS) {
+            throw new NoMorePlayersAllowedException();
+        }
+        final List<SkatCard> handcards = this.popCardsFromStackByAmount(5);
+        newplayer.giveHandCards(handcards);
+        this.player = newplayer;
+        this.getPlayers().put(this.getPlayers().size() + 1, newplayer);
+    }
+    /**
+     * If player doesn't have a seven then he draw the extra cards.
+     * This method checks active players cards and give new handcards 
+     * if there is no seven on hand.
+     */
+    private void checkRuleSeven() {
+        if (this.hasPlayerCardValue(EnumSkatValue.SEVEN)) {
+            return;
+        }
+        int size = this.extracards.size();
+        for(int i = 0; i < size ; i++) {
+            getPlayer().giveHandCard(this.extracards.pop());
+        }
     }
     /**
      * Initialise and shuffles the drawstack for play.
@@ -206,19 +401,19 @@ public class GameMau {
      */
     private void pushToNextPlayerTurn() {
         Integer idx = 0;
-        for (HashMap.Entry<Integer, GameMauPlayer> entry : getPlayers().entrySet()) {
-            if (entry.getValue().equals(getPlayer())) {
+        for (HashMap.Entry<Integer, GameMauPlayer> entry : this.getPlayers().entrySet()) {
+            if (entry.getValue().equals(this.getPlayer())) {
                 idx = entry.getKey();
             }
         }
         // Standard
-        if (idx == getPlayers().size()) {
+        if (idx == this.getPlayers().size()) {
             idx = 1;
         } else {
             idx++;
         }
         // Ace-Rule
-        if (isNextplayerstay()) {
+        if (this.hasNextPlayerToStay()) {
             if (idx == getPlayers().size()) {
                 idx = 1;
             } else {
@@ -226,137 +421,14 @@ public class GameMau {
             }
             this.playerstay = false;
         }
-        this.player = getPlayers().get(idx);
-    }
-    /**
-     * Checks a given SkatCard to the last middlestack card and the rules
-     * of the mau game.
-     * Throws an exception if a rule is violated.
-     * 
-     * @param playerCard usually the player card to check for rule-violations.
-     * @throws CardByRulesNotAllowedException if a rule is violated by given card.
-     */
-    void checkRulesForCard(SkatCard playerCard) throws CardByRulesNotAllowedException {
-        SkatCard stackCard = getMiddlestack().peek();
-        boolean ruleBreak = false;
-        // Standard-Rules
-        if (!stackCard.getColor().equals(playerCard.getColor())
-                && !stackCard.getValue().equals(playerCard.getValue())
-                && !playerCard.getValue().equals(EnumSkatValue.JACK)) {
-            ruleBreak = true;
-        }
-        // Color-Chooser Rule
-        if (choosedcolor != null && !choosedcolor.equals(playerCard.getColor())) {
-            ruleBreak = true;
-        } else if (choosedcolor != null
-                && choosedcolor.equals(playerCard.getColor())) {
-            ruleBreak = false;
-            choosedcolor = null;
-        }
-        // Jack on Jack Rule
-        if (stackCard.getValue().equals(EnumSkatValue.JACK)
-                && playerCard.getValue().equals(EnumSkatValue.JACK)) {
-            ruleBreak = true;
-        }
-        if (!ruleBreak) {
-            if (playerCard.getValue().equals(EnumSkatValue.ACE)) {
-                playerstay = true;
-            }
-        } else {
-            throw new CardByRulesNotAllowedException();
-        }
-    }
-    /**
-     * Returns the skatcard color which was choosed by a player.
-     *
-     * @return the choosed color of a player.
-     */
-    public EnumSkatColor getChoosedcolor() {
-        return this.choosedcolor;
-    }
-    /**
-     * If player doesn't have a seven then he draw the extra cards.
-     * This method checks active players cards and give new handcards 
-     * if there is no seven on hand.
-     */
-    void checkActivePlayersNextCardsForSeven() {
-        if (checkPlayerHasCard(EnumSkatValue.SEVEN)) {
-            return;
-        }
-        int size = this.extracards.size();
-        for(int i = 0; i < size ; i++) {
-            getPlayer().giveHandCard(this.extracards.pop());
-        }
-    }
-    /**
-     * Returns true if next player have to stay because an ace was thrown.
-     * 
-     * @return true if next player will be skipped, otherwise false. 
-     */
-    public boolean isNextplayerstay() {
-        return this.playerstay;
-    }
-    /**
-     * Checks if a player has a value card on his hand. The card
-     * to check is given as parameter.
-     *
-     * @param enumSkatValue the card value to check.
-     * @return true if value is on players hand, false otherwise. 
-     */
-    boolean checkPlayerHasCard(EnumSkatValue enumSkatValue) {
-        for (SkatCard skatCard : getPlayer().getHandCards()) {
-            if (skatCard.getValue().equals(enumSkatValue)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
-     * Returns the current game state.
-     *
-     * @return true if game is running, false otherwise.
-     */
-    public boolean isRunning() {
-        return this.running;
+        this.player = this.getPlayers().get(idx);
     }
     /**
      * Set the active game state with given parameter.
      *
      * @param b the active game state as boolean.
      */
-    private void setRunning(boolean b) {
+    private void setRunning(final boolean b) {
         this.running = b;
-    }
-    /**
-     * Starts the mau game with initialising the middlestack
-     * and switching the game state to running.
-     */
-    public void start() {
-        popFirstCardToMiddleStack();
-        this.running = true;
-    }
-    /**
-     * Returns the winner of the mau game as GameMauPlayer.
-     * 
-     * @return the winner of the mau game as GameMauPlayer.
-     */
-    public GameMauPlayer getWinner() {
-        return this.winner;
-    }
-    /**
-     * Pushes the middlestack to the drawstack, except for the card on top, 
-     * and shuffled all to fill the drawstack.
-     */
-    void pushMiddleStackToDrawStackShuffled() {
-        SkatCard topMiddleStackCard = getMiddlestack().pop();
-        
-        while(!getMiddlestack().isEmpty()) {
-            drawstack.push(getMiddlestack().pop());
-        }
-        // return CardOnTop to MiddleStack
-        getMiddlestack().push(topMiddleStackCard);
-        
-        // Shuffle drawstack
-        Collections.shuffle(drawstack);
     }
 }

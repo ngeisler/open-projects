@@ -9,11 +9,13 @@ import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkat
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatValue;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.NoMorePlayersAllowedException;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.CardByRulesNotAllowedException;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.interfaces.IGameMau;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -52,69 +54,69 @@ public class TestGameMau {
     @Test
     public void whenAPlayerThrowsAHandCardThenTheMiddleStackHasOneCardMore() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);       
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);       
         
         spyGame.addNewPlayerToGame(new GameMauPlayer("one"));
-        spyGame.popFirstCardToMiddleStack();
+        spyGame.start();
         doNothing().when(spyGame).checkRulesForCard(anyObject());
-        int size = spyGame.getMiddlestack().size();
+        int size = spyGame.getMiddleStackSize();
         spyGame.throwPlayerCardToMiddleStack(null);
-        assertThat(spyGame.getMiddlestack().size(), is(size+1));
+        assertThat(spyGame.getMiddleStackSize(), is(size+1));
     }
     
     @Test
     public void whenAPlayerThrowsAHandCardThenThePlayerHasOneHandCardLess() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);       
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);       
 
         spyGame.addNewPlayerToGame(new GameMauPlayer("one"));
         doNothing().when(spyGame).checkRulesForCard(anyObject());
-        spyGame.popFirstCardToMiddleStack();
-        int size = spyGame.getPlayer().getHandSize();
+        spyGame.start();
+        int size = spyGame.getPlayersHandSize();
         spyGame.throwPlayerCardToMiddleStack(null);
-        assertThat(spyGame.getPlayer().getHandSize(), is(size-1));
+        assertThat(spyGame.getPlayersHandSize(), is(size-1));
     }
     
     @Test
     public void whenAGameIsRunningThenTheStackHaveAtLeastOneCard() {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        game.popFirstCardToMiddleStack();
-        assertThat(game.getMiddlestack().size(), is(greaterThan(0)));
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        game.start();
+        assertThat(game.getMiddleStackSize(), is(greaterThan(0)));
     }
     
     @Test
     public void whenAGameStartsThenThePlayersHave5HandCards() throws NoMorePlayersAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
+        IGameMau game = GameMau.getInstanceOfGameMau();
         game.addNewPlayerToGame(new GameMauPlayer("one"));
         game.addNewPlayerToGame(new GameMauPlayer("two"));
-        Map<Integer, GameMauPlayer> players = game.getPlayers();
-        players.values().stream().forEach((player) -> {
-            assertThat(player.getHandSize(), is(5));
+        Set<Integer> ids= game.getPlayerIds();
+        ids.stream().forEach((id) -> {
+            assertThat(game.getPlayerHandSizeWithId(id), is(5));
         });
     }
     
     @Test
     public void whenAGameStartsThenMinimumTwoPlayersAreRequiredForTheGame() throws NoMorePlayersAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
+        IGameMau game = GameMau.getInstanceOfGameMau();
         game.addNewPlayerToGame(new GameMauPlayer("one"));
         game.addNewPlayerToGame(new GameMauPlayer("two"));
-        Map<Integer, GameMauPlayer> players = game.getPlayers();
+        Set<Integer> players = game.getPlayerIds();
         assertThat(players.size(), is(greaterThanOrEqualTo(2)));
     }
     
     @Test
     public void whenAGameStartsThenThePlayersHaveNotTheSameCards() throws NoMorePlayersAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
+        IGameMau game = GameMau.getInstanceOfGameMau();
         game.addNewPlayerToGame(new GameMauPlayer("one"));
         game.addNewPlayerToGame(new GameMauPlayer("two"));
-        List<SkatCard> oneCards = game.getPlayers().get(1).getHandCards();
-        List<SkatCard> twoCards = game.getPlayers().get(2).getHandCards();
+        List<SkatCard> oneCards = game.getPlayerHandCardsWithId(1);
+        List<SkatCard> twoCards = game.getPlayerHandCardsWithId(2);
         twoCards.stream().forEach((twoCard) -> {
             assertThat(oneCards, not(hasItem(twoCard)));
         });
@@ -123,7 +125,7 @@ public class TestGameMau {
     @Test(expected = NoMorePlayersAllowedException.class)
     public void whenMoreThanFourPlayersBeAddedToGameThereWillBeAnError() throws NoMorePlayersAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
+        IGameMau game = GameMau.getInstanceOfGameMau();
         game.addNewPlayerToGame(new GameMauPlayer("one"));
         game.addNewPlayerToGame(new GameMauPlayer("two"));
         game.addNewPlayerToGame(new GameMauPlayer("three"));
@@ -134,29 +136,29 @@ public class TestGameMau {
     @Test
     public void whenAPlayerThrowedACardThenTheNextPlayerIsOnTurnAndThatsNotTheSame() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game); 
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game); 
         
         spyGame.addNewPlayerToGame(new GameMauPlayer("one"));
         spyGame.addNewPlayerToGame(new GameMauPlayer("two"));
-        spyGame.popFirstCardToMiddleStack();
+        spyGame.start();
         doNothing().when(spyGame).checkRulesForCard(anyObject());
-        String playerNameOne = spyGame.getPlayer().getName();
+        String playerNameOne = spyGame.getPlayersName();
         spyGame.throwPlayerCardToMiddleStack(null);
-        assertThat(playerNameOne, is(not(spyGame.getPlayer().getName())));
+        assertThat(playerNameOne, is(not(spyGame.getPlayersName())));
     }
     
     @Test
     public void whenAPlayerThrowsACardThenTheLastMiddleStackCardShouldBeSameColorOrValue() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         spyGame.addNewPlayerToGame(spyPlayerOne);
         int handsize = spyPlayerOne.getHandSize();
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.ACE))
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
+        spyGame.throwUncheckedCardToMiddleStack(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         assertThat(spyPlayerOne.getHandSize(), is(handsize+2));
@@ -165,14 +167,14 @@ public class TestGameMau {
     @Test
     public void whenAPlayerThrowsAJackThenTheLastMiddleStackCardShouldNotBeAJack() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         spyGame.addNewPlayerToGame(spyPlayerOne);
         int handsize = spyPlayerOne.getHandSize();
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
+        spyGame.throwUncheckedCardToMiddleStack(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         assertThat(spyPlayerOne.getHandSize(), is(handsize+2));
@@ -181,14 +183,14 @@ public class TestGameMau {
     @Test
     public void whenAPlayerCanNotThrowACardThenTheHandSizeOfThePlayerHasOneMore() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         spyGame.addNewPlayerToGame(spyPlayerOne);
         int handsize = spyPlayerOne.getHandSize();
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
+        spyGame.throwUncheckedCardToMiddleStack(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.JACK));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
@@ -198,25 +200,25 @@ public class TestGameMau {
     @Test
     public void whenAPlayerThrowAJackThenThisPlayerChooseTheNextColor() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         spyGame.addNewPlayerToGame(spyPlayerOne);
         
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
                 .when(spyPlayerOne).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
+        spyGame.throwUncheckedCardToMiddleStack(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyGame.getChoosedcolor(), is(not(nullValue())));
+        assertThat(spyGame.getChoosedGameColor(), is(not(nullValue())));
     }
     
     @Test
     public void whenAPlayerThrowsRightColorAfterChoosingThenChoosedColorIsNull() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         spyGame.addNewPlayerToGame(spyPlayerOne);
         
@@ -224,7 +226,7 @@ public class TestGameMau {
                 .thenReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.JACK))
                 .thenReturn(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.SEVEN));
         
-        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
+        spyGame.throwUncheckedCardToMiddleStack(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
         doReturn(EnumSkatColor.DIAMONDS).when(spyPlayerOne).getSelectedColor();
         
         // throw Jack
@@ -233,15 +235,15 @@ public class TestGameMau {
         // throw right Color
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyGame.getChoosedcolor(), is(nullValue()));
+        assertThat(spyGame.getChoosedGameColor(), is(nullValue()));
         
     }
     
     @Test
     public void whenAPlayerThrowsValueSevenThenNextPlayerHaveToDrawTwoExtraCards() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
         List<SkatCard> cards = Arrays.asList(
@@ -251,7 +253,7 @@ public class TestGameMau {
                     new SkatCard(EnumSkatColor.SPADES, EnumSkatValue.EIGHT),
                     new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.NINE),
                     new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.NINE)});
-        when(spyGame.getPlayersInitialCards()).thenReturn(cards).thenCallRealMethod();
+        when(spyGame.popCardsFromStackByAmount(5)).thenReturn(cards).thenCallRealMethod();
 
         spyGame.addNewPlayerToGame(spyPlayerOne);
         spyGame.addNewPlayerToGame(spyPlayerTwo);
@@ -260,19 +262,19 @@ public class TestGameMau {
         when(spyPlayerTwo.getSelectedHandCardToThrow(anyInt()))
                 .thenReturn(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.SEVEN));
         
-        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
+        spyGame.throwUncheckedCardToMiddleStack(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyGame.getPlayer().getHandSize(), is(7));
+        assertThat(spyGame.getPlayersHandSize(), is(7));
         
     }
     
     @Test
     public void whenAPlayerHaveToDrawTwoExtraCardsThenAnotherValueSevenCardCanRedirectWithTwoExtraCardsToNextPlayer() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
         spyGame.addNewPlayerToGame(spyPlayerOne);
@@ -284,27 +286,27 @@ public class TestGameMau {
         when(spyPlayerOne.getSelectedHandCardToThrow(anyInt()))
                 .thenReturn(new SkatCard(EnumSkatColor.HEARTS, EnumSkatValue.SEVEN));
         
-        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
+        spyGame.throwUncheckedCardToMiddleStack(new SkatCard(EnumSkatColor.DIAMONDS, EnumSkatValue.EIGHT));
         
-        when(spyGame.isNextplayerstay()).thenReturn(Boolean.FALSE);
+        when(spyGame.hasNextPlayerToStay()).thenReturn(Boolean.FALSE);
         
-        doReturn(true).when(spyGame).checkPlayerHasCard(any());
+        doReturn(true).when(spyGame).hasPlayerCardValue(any());
         
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        doReturn(false).when(spyGame).checkPlayerHasCard(any());
+        doReturn(false).when(spyGame).hasPlayerCardValue(any());
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
-        assertThat(spyGame.getPlayer().getHandSize(), is(8));
+        assertThat(spyGame.getPlayersHandSize(), is(8));
         
     }
     
     @Test
     public void whenAPlayerThrowsAnAceValueThenNextPlayerHasToStay() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
         spyGame.addNewPlayerToGame(spyPlayerOne);
@@ -312,109 +314,78 @@ public class TestGameMau {
         
         doReturn(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.ACE))
                 .when(spyPlayerTwo).getSelectedHandCardToThrow(anyInt());
-        spyGame.getMiddlestack().push(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.EIGHT));
+        spyGame.throwUncheckedCardToMiddleStack(new SkatCard(EnumSkatColor.CLUBS, EnumSkatValue.EIGHT));
                 
         spyGame.throwPlayerCardToMiddleStack(null);
         
         // so the next player should be player two again
-        assertThat(spyGame.getPlayer().getName(), is("two"));
+        assertThat(spyGame.getPlayersName(), is("two"));
     }
     
     @Test
     public void whenAllPlayersHaveMinimumOneCardThenTheGameIsNotOver() throws NoMorePlayersAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
         
         spyGame.addNewPlayerToGame(spyPlayerTwo);
         spyGame.addNewPlayerToGame(spyPlayerOne);
         
-        spyGame.popFirstCardToMiddleStack();
-        
         spyGame.start();
         
-        assertThat(spyGame.isRunning(), is(true));
+        assertThat(spyGame.isGameRunning(), is(true));
     }    
     
     @Test
     public void whenOnePlayersHaveNoCardsLeftAfterTurnThenTheGameIsOver() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
         
         spyGame.addNewPlayerToGame(spyPlayerTwo);
         spyGame.addNewPlayerToGame(spyPlayerOne);
         
-        spyGame.popFirstCardToMiddleStack();
+        spyGame.start();
         doNothing().when(spyGame).checkRulesForCard(any());
         doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
-        doReturn(false).when(spyGame).isNextplayerstay();
+        doReturn(false).when(spyGame).hasNextPlayerToStay();
         
         for(int i = 0; i < 9; i++) {
             spyGame.throwPlayerCardToMiddleStack(null);
         }
         
-        assertThat(spyGame.isRunning(), is(false));
+        assertThat(spyGame.isGameRunning(), is(false));
     }
     
     @Test
     public void whenAPlayerHasNoHandCardsThenItIsTheWinnerOfTheGame() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
         // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
+        IGameMau game = GameMau.getInstanceOfGameMau();
+        IGameMau spyGame = spy(game);        
         GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
         GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
         
         spyGame.addNewPlayerToGame(spyPlayerTwo);
         spyGame.addNewPlayerToGame(spyPlayerOne);
         
-        spyGame.popFirstCardToMiddleStack();
+        spyGame.start();
         doNothing().when(spyGame).checkRulesForCard(any());
         doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
-        doReturn(false).when(spyGame).isNextplayerstay();
+        doReturn(false).when(spyGame).hasNextPlayerToStay();
         
         for(int i = 0; i < 9; i++) {
             spyGame.throwPlayerCardToMiddleStack(null);
         }
         
-        assertThat(spyGame.getWinner().getName(), is("one"));
+        assertThat(spyGame.getWinnersName(), is("one"));
     }
-    
-    @Test
-    public void whenDrawStackGetsEmptyThenMiddleStackHaveToBeShuffledAndSwitched() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
-        // Arrange Act Assert
-        GameMau game = new GameMau();
-        GameMau spyGame = spy(game);        
-        GameMauPlayer spyPlayerOne = spy(new GameMauPlayer("one"));
-        GameMauPlayer spyPlayerTwo = spy(new GameMauPlayer("two"));
-        GameMauPlayer spyPlayerThree = spy(new GameMauPlayer("three"));
-        GameMauPlayer spyPlayerFour = spy(new GameMauPlayer("four"));
+
+    public void whenDrawStackIsEmptyThenMiddleStackShouldBeShuffledAndSwitched() {
         
-        spyGame.addNewPlayerToGame(spyPlayerFour);
-        spyGame.addNewPlayerToGame(spyPlayerThree);
-        spyGame.addNewPlayerToGame(spyPlayerTwo);
-        spyGame.addNewPlayerToGame(spyPlayerOne);
-        
-        spyGame.popFirstCardToMiddleStack();
-        doNothing().when(spyGame).checkRulesForCard(any());
-        doNothing().when(spyGame).checkActivePlayersNextCardsForSeven();
-        doReturn(false).when(spyGame).isNextplayerstay();
-        
-        for(int i = 0; i < 9; i++) {
-            spyGame.throwPlayerCardToMiddleStack(null);
-        }
-        Stack<SkatCard> checkStack = new Stack();
-        checkStack.setSize(spyGame.getMiddlestack().size());
-        Collections.copy(checkStack, spyGame.getMiddlestack());
-        spyGame.getDrawstack().removeAllElements();
-        
-        spyGame.getDrawstack().pop();
-        
-        assertThat(spyGame.getDrawstack(), hasItem(checkStack.get(1)));
     }
 
 }

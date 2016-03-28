@@ -14,6 +14,7 @@ import com.geisler.softwareentwicklung.openprojects.card.game.mau.GameMau;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.GameMauPlayer;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.NoMorePlayersAllowedException;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.SkatCard;
+import com.geisler.softwareentwicklung.openprojects.card.game.mau.interfaces.IGameMau;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.view.GameMauView;
 import java.util.Scanner;
 
@@ -32,7 +33,8 @@ public class StartMauGame {
     }
     
     public static void startConsoleGame() throws NoMorePlayersAllowedException, CardByRulesNotAllowedException {
-        GameMau mau = new GameMau();
+        IGameMau mau;
+        mau = GameMau.getInstanceOfGameMau();
         
         StartMauGame start = new StartMauGame();
         Integer players = start.getPlayerCountFromUser();
@@ -44,18 +46,18 @@ public class StartMauGame {
             mau.addNewPlayerToGame(new GameMauPlayer(start.getPlayerNameFromUser(i)));
         }
         
-        mau.getPlayers().values().stream().forEach((player) -> {
-            System.out.println("Spielername: " + player.getName());
+        mau.getPlayerIds().stream().forEach((playerid) -> {
+            System.out.println("Spielername: " + mau.getPlayerNameWithId(playerid));
         });
         
         mau.start();
         
-        // rundenbasiert
-        while(mau.isRunning()) {
-            System.out.println("Aktuelle Karte auf dem Stapel: " + mau.getMiddlestack().peek().toString());
+        // rundenbasiert TODO: muss neu gemacht werden
+        /*while(mau.isGameRunning()) {
+            System.out.println("Aktuelle Karte auf dem Stapel: " + mau.getMiddleStackCardOnTop.toString());
             // Show choosed color
-            if(mau.getChoosedcolor() != null) {
-                System.out.println("Gewünschte Farbe ist: " + mau.getChoosedcolor().getGerman());
+            if(mau.getChoosedGameColor() != null) {
+                System.out.println("Gewünschte Farbe ist: " + mau.getChoosedGameColor().getGerman());
             }
             Integer cardIdx = start.getCardIndexFromUser(mau.getPlayer());
             SkatCard playerCard = mau.getPlayer().getHandCards().get(cardIdx-1);
@@ -64,9 +66,9 @@ public class StartMauGame {
                 mau.getPlayer().setJacksColor(choosedColor);
             }
             mau.throwPlayerCardToMiddleStack(cardIdx-1);
-        }
+        } */
         
-        System.out.println("Gewinner ist: " + mau.getWinner().getName());
+        System.out.println("Gewinner ist: " + mau.getWinnersName());
     }
     
     public Integer getCardIndexFromUser(GameMauPlayer activePlayer) {
