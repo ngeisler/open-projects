@@ -11,15 +11,17 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+//import org.junit.Test;
+//import static org.junit.Assert.*;
 
 /**
+ * An enumeration that describes the value of a skat card.
  *
- * @author ngeis
+ * @author Nico Geisler (geislern85@googlemail.com)
+ * @version $Id$
+ * @since 0.0.1
  */
-
-
 public class TestGameSnake {
     
     public TestGameSnake() {
