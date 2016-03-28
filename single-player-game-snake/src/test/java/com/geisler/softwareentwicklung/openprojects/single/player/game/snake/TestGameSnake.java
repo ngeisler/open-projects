@@ -16,7 +16,7 @@ import org.junit.BeforeClass;
 //import static org.junit.Assert.*;
 
 /**
- * An enumeration that describes the value of a skat card.
+ * The test game class for the tests of the snake game.
  *
  * @author Nico Geisler (geislern85@googlemail.com)
  * @version $Id$
