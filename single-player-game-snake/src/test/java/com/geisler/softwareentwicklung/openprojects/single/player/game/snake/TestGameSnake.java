@@ -36,8 +36,27 @@ public class TestGameSnake {
      * Test should ckeck if the game is in a running state after starting it.
      */
     @Test
-    public final void gameSnakeSouldBeRunningIfGameIsStarted() {
+    public final void gameSnakeShouldBeRunningIfGameIsStarted() {
         this.cut.startGame();
         MatcherAssert.assertThat(this.cut.isRunning(), Matchers.is(true));
+    }
+
+    /**
+     * Test should ckeck if the game is not in a running state before
+     * starting it.
+     */
+    @Test
+    public final void gameSnakeShouldNotBeRunningIfGameIsNotStarted() {
+        MatcherAssert.assertThat(this.cut.isRunning(), Matchers.is(false));
+    }
+
+    /**
+     * Test should ckeck if the game is not in a running state after
+     * stopping it.
+     */
+    @Test
+    public final void gameSnakeShouldNotBeRunningIfGameIsStopped() {
+        this.cut.stopGame();
+        MatcherAssert.assertThat(this.cut.isRunning(), Matchers.is(false));
     }
 }

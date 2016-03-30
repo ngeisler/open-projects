@@ -17,18 +17,31 @@ package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 class GameSnake {
 
     /**
+     * The running state of the game as boolean type.
+     */
+    private boolean running;
+
+    /**
      * Starts the game snake.
      */
     public void startGame() {
-        this.hashCode();
+        this.running = true;
     }
+
+    /**
+     * Stops the game snake.
+     */
+    public void stopGame() {
+        this.running = false;
+    }
+
     /**
      * Returns the running state of the game snake.
      *
      * @return Returns true if the game is running, otherwise false.
      */
     public boolean isRunning() {
-        this.hashCode();
-        return true;
+        return this.running;
     }
+
 }
