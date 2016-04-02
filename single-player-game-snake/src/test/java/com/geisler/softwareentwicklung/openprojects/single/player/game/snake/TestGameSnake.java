@@ -7,6 +7,7 @@
  */
 package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 
+import javax.swing.JPanel;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -58,5 +59,35 @@ public class TestGameSnake {
     public final void gameSnakeShouldNotBeRunningIfGameIsStopped() {
         this.cut.stopGame();
         MatcherAssert.assertThat(this.cut.isRunning(), Matchers.is(false));
+    }
+
+    /**
+     * Test should ckeck if the game is a visual Component like JPanel and
+     * is visible after starting it.
+     */
+    @Test
+    public final void
+        gameSnakeShouldBeAVisualComponentAndVisibleIfGameIsStarted() {
+        this.cut.startGame();
+        MatcherAssert.assertThat(this.cut, Matchers.instanceOf(JPanel.class));
+        MatcherAssert.assertThat(this.cut.isVisible(), Matchers.is(true));
+    }
+
+    /**
+     * Test should ckeck if the game has default size of the view
+     * after starting it.
+     */
+    @Test
+    public final void
+        gameSnakeShouldHaveDefaultViewSizeOnStartupIfSizeNotSet() {
+        this.cut.startGame();
+        MatcherAssert.assertThat(
+            this.cut.getSize().width,
+            Matchers.is(GameSnake.DEFAULT_WIDTH)
+        );
+        MatcherAssert.assertThat(
+            this.cut.getSize().height,
+            Matchers.is(GameSnake.DEFAULT_HEIGHT)
+        );
     }
 }

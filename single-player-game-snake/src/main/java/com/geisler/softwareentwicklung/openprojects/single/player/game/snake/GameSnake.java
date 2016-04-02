@@ -7,6 +7,8 @@
  */
 package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 
+import javax.swing.JPanel;
+
 /**
  * The main class for the game snake.
  *
@@ -14,7 +16,16 @@ package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
  * @version $Id$
  * @since 0.0.1
  */
-class GameSnake {
+class GameSnake extends JPanel {
+
+    /**
+     * Default width of the game snake view.
+     */
+    public static final int DEFAULT_WIDTH = 800;
+    /**
+     * Default height of the game snake view.
+     */
+    public static final int DEFAULT_HEIGHT = 600;
 
     /**
      * The running state of the game as boolean type.
@@ -26,6 +37,7 @@ class GameSnake {
      */
     public void startGame() {
         this.running = true;
+        this.setSize(GameSnake.DEFAULT_WIDTH, GameSnake.DEFAULT_HEIGHT);
     }
 
     /**
