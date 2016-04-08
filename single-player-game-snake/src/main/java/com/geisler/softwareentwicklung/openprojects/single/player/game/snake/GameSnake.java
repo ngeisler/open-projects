@@ -33,10 +33,16 @@ class GameSnake extends JPanel {
     private boolean running;
 
     /**
+     * The snake of the game as Snake type.
+     */
+    private transient Snake snake;
+
+    /**
      * Starts the game snake.
      */
     public void startGame() {
         this.running = true;
+        this.snake = new Snake();
         this.setSize(GameSnake.DEFAULT_WIDTH, GameSnake.DEFAULT_HEIGHT);
     }
 
@@ -56,4 +62,13 @@ class GameSnake extends JPanel {
         return this.running;
     }
 
+    /**
+     * Returns the snake of the running game.
+     *
+     * @return Returns an instance of snake if the game is running,
+     *  otherwise null.
+     */
+    public Snake getSnake() {
+        return this.snake;
+    }
 }

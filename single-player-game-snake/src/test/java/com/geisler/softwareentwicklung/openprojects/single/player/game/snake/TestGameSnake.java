@@ -90,4 +90,17 @@ public class TestGameSnake {
             Matchers.is(GameSnake.DEFAULT_HEIGHT)
         );
     }
+
+    /**
+     * Test should ckeck if the game has a snake for playing
+     * after starting.
+     */
+    @Test
+    public final void gameSnakeShouldHaveASnakeOnStartup() {
+        this.cut.startGame();
+        MatcherAssert.assertThat(
+            this.cut.getSnake(),
+            Matchers.instanceOf(Snake.class)
+        );
+    }
 }

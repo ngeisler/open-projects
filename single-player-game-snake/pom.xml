@@ -37,13 +37,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.sourceforge.cobertura</groupId>
-            <artifactId>cobertura</artifactId>
-            <version>1.9.4.1</version>
-            <scope>test</scope>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.10.19</version>
@@ -54,30 +47,51 @@
     <build>
         <pluginManagement>
             <plugins>
-              <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.5.1</version>
-              </plugin>
+                <plugin>
+                    <groupId>com.qulice</groupId>
+                    <artifactId>qulice-maven-plugin</artifactId>
+                    <version>0.16.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.6.201602180812</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-          <plugin>
-            <groupId>com.qulice</groupId>
-            <artifactId>qulice-maven-plugin</artifactId>
-            <version>0.16.3</version>
-            <configuration>
-              <license>file:${project.basedir}/src/main/resources/LICENSE.txt</license>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>instrument</goal>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
+            <plugin>
+              <groupId>com.qulice</groupId>
+              <artifactId>qulice-maven-plugin</artifactId>
+              <configuration>
+                <license>file:${project.basedir}/src/main/resources/LICENSE.txt</license>
+              </configuration>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>check</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                      <goals>
+                        <goal>prepare-agent</goal>
+                      </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                          <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
