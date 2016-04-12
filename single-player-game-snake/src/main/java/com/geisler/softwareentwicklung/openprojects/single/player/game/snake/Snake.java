@@ -10,6 +10,7 @@ package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 import java.awt.geom.Point2D;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Stack;
 
 /**
  * The main class for the snake of the game.
@@ -24,6 +25,11 @@ class Snake {
      * The headposition of the snake.
      */
     private Point2D headposition;
+
+    /**
+     * The bodyparts of the snake.
+     */
+    private Stack<Point2D> bodyparts;
 
     /**
      * Returns the head position of the snake on the parent game view.
@@ -76,5 +82,15 @@ class Snake {
             headx,
             heady
         );
+        this.bodyparts = new Stack<>();
+        this.bodyparts.add(this.headposition);
+    }
+
+    /**
+     * Returns the bodyparts of the snake as Point2D-instances.
+     * @return The bodyparts of the snake as Point2D-instances.
+     */
+    public Stack<Point2D> getBodyparts() {
+        return this.bodyparts;
     }
 }

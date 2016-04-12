@@ -92,4 +92,20 @@ public class TestSnake {
             )
         );
     }
+
+    /**
+     * Test should check if snake has an initial bodypart after initialising.
+     */
+    @Test
+    public final void snakeShouldHaveOneBodyPartAfterInitialising() {
+        this.cut.init(GameSnake.DEFAULT_WIDTH, GameSnake.DEFAULT_HEIGHT);
+        MatcherAssert.assertThat(
+            this.cut.getBodyparts(),
+            Matchers.notNullValue()
+        );
+        MatcherAssert.assertThat(
+            this.cut.getBodyparts(),
+            Matchers.not(Matchers.empty())
+        );
+    }
 }

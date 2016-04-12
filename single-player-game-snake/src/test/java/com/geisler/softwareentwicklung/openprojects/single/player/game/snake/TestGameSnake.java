@@ -74,6 +74,24 @@ public class TestGameSnake {
     }
 
     /**
+     * Test should ckeck if the game has a visual Component as parent like
+     * JFrame and is visible after starting it.
+     */
+    @Test
+    public final void
+        gameSnakeShouldHaveAVisualParentAndVisibleIfGameIsStarted() {
+        this.cut.startGame();
+        MatcherAssert.assertThat(
+            this.cut.getParent(),
+            Matchers.notNullValue()
+        );
+        MatcherAssert.assertThat(
+            this.cut.getParent().isVisible(),
+            Matchers.is(true)
+        );
+    }
+
+    /**
      * Test should ckeck if the game has default size of the view
      * after starting it.
      */

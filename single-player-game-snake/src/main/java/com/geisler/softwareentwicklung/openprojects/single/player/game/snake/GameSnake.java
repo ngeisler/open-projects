@@ -7,6 +7,8 @@
  */
 package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 
+import java.awt.Dimension;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 /**
@@ -22,10 +24,21 @@ class GameSnake extends JPanel {
      * Default width of the game snake view.
      */
     public static final int DEFAULT_WIDTH = 800;
+
+    /**
+     * Default width diff of the game frame.
+     */
+    public static final int WIN_WIDTH_DIFF = 16;
+
     /**
      * Default height of the game snake view.
      */
     public static final int DEFAULT_HEIGHT = 600;
+
+    /**
+     * Default height diff of the game frame.
+     */
+    public static final int WIN_HEIGHT_DIFF = 39;
 
     /**
      * The running state of the game as boolean type.
@@ -41,9 +54,25 @@ class GameSnake extends JPanel {
      * Starts the game snake.
      */
     public void startGame() {
+        final JFrame parent = new JFrame("Snake");
+        parent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.running = true;
         this.snake = new Snake();
-        this.setSize(GameSnake.DEFAULT_WIDTH, GameSnake.DEFAULT_HEIGHT);
+        this.setMinimumSize(
+            new Dimension(
+                GameSnake.DEFAULT_WIDTH,
+                GameSnake.DEFAULT_HEIGHT
+            )
+        );
+        parent.add(this);
+        parent.setMinimumSize(
+            new Dimension(
+                GameSnake.DEFAULT_WIDTH + GameSnake.WIN_WIDTH_DIFF,
+                GameSnake.DEFAULT_HEIGHT + GameSnake.WIN_HEIGHT_DIFF
+            )
+        );
+        parent.pack();
+        parent.setVisible(true);
     }
 
     /**
@@ -71,4 +100,9 @@ class GameSnake extends JPanel {
     public Snake getSnake() {
         return this.snake;
     }
+//
+//    public static void main(String[] args) {
+//        GameSnake game = new GameSnake();
+//        game.startGame();
+//    }
 }
