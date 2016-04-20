@@ -7,6 +7,8 @@
  */
 package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 
+import java.awt.Graphics2D;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,7 +21,7 @@ import java.util.Stack;
  * @version $Id$
  * @since 0.0.1
  */
-class Snake {
+class Snake implements Drawable {
 
     /**
      * The headposition of the snake.
@@ -92,5 +94,70 @@ class Snake {
      */
     public Stack<Point2D> getBodyparts() {
         return this.bodyparts;
+    }
+
+    /**
+     * The eating method of the snake. If there is a fruit on the head
+     * the fruit will be eaten and the body is growing.
+     * @param fruit The fruit as an ellipse which is eaten by the snake.
+     */
+    public void eat(final Ellipse2D fruit) {
+        this.bodyparts.add(new Point2D.Double(fruit.getX(), fruit.getY()));
+    }
+
+    /**
+     * The movement of the snake in the right direction with a given size.
+     * @param movesize The size of the movement of the snake as double value.
+     */
+    public void moveRight(final double movesize) {
+        this.headposition.setLocation(
+            this.headposition.getX() + movesize,
+            this.headposition.getY()
+        );
+    }
+
+    /**
+     * The movement of the snake in the down direction with a given size.
+     * @param movesize The size of the movement of the snake as double value.
+     */
+    public void moveDown(final double movesize) {
+        this.headposition.setLocation(
+            this.headposition.getX(),
+            this.headposition.getY() + movesize
+        );
+    }
+
+    /**
+     * The movement of the snake in the up direction with a given size.
+     * @param movesize The size of the movement of the snake as double value.
+     */
+    public void moveUp(final double movesize) {
+        this.headposition.setLocation(
+            this.headposition.getX(),
+            this.headposition.getY() - movesize
+        );
+    }
+
+    /**
+     * The movement of the snake in the left direction with a given size.
+     * @param movesize The size of the movement of the snake as double value.
+     */
+    public void moveLeft(final double movesize) {
+        this.headposition.setLocation(
+            this.headposition.getX() - movesize,
+            this.headposition.getY()
+        );
+    }
+
+    @Override
+    public void drawComponent(final Graphics2D graphic) {
+        for (final Point2D bodypart : this.bodyparts) {
+            graphic.fillRect(
+                (int) bodypart.getX(),
+                (int) bodypart.getY(),
+                2,
+                2
+            );
+        }
     }
 }
