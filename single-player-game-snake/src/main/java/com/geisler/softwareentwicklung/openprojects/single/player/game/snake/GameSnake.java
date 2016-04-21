@@ -8,6 +8,9 @@
 package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -18,7 +21,7 @@ import javax.swing.JPanel;
  * @version $Id$
  * @since 0.0.1
  */
-class GameSnake extends JPanel {
+class GameSnake extends JPanel implements Runnable {
 
     /**
      * Default width of the game snake view.
@@ -51,13 +54,36 @@ class GameSnake extends JPanel {
     private transient Snake snake;
 
     /**
+     * A public empty constructor for the gamesnake.
+     */
+    GameSnake() {
+        this(null);
+    }
+
+    /**
+     * A public constructor for the gamesnake with a given snake.
+     *
+     * @param asnake A given snake for instanciation.
+     */
+    GameSnake(final Snake asnake) {
+        super();
+        this.snake = asnake;
+    }
+
+    /**
      * Starts the game snake.
      */
     public void startGame() {
         final JFrame parent = new JFrame("Snake");
         parent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.running = true;
-        this.snake = new Snake();
+        if (this.snake == null) {
+            this.snake = new Snake();
+            this.snake.init(
+                GameSnake.DEFAULT_WIDTH,
+                GameSnake.DEFAULT_HEIGHT
+            );
+        }
         this.setMinimumSize(
             new Dimension(
                 GameSnake.DEFAULT_WIDTH,
@@ -94,15 +120,35 @@ class GameSnake extends JPanel {
     /**
      * Returns the snake of the running game.
      *
-     * @return Returns an instance of snake if the game is running,
-     *  otherwise null.
+     * @return Returns an instance of snake if the game is running, otherwise
+     *  null.
      */
     public Snake getSnake() {
         return this.snake;
     }
-//
-//    public static void main(String[] args) {
-//        GameSnake game = new GameSnake();
-//        game.startGame();
-//    }
+
+    @Override
+    public void run() {
+        while (this.isRunning()) {
+            this.repaint();
+            try {
+                Thread.sleep(GameSnake.WIN_WIDTH_DIFF);
+            } catch (final InterruptedException exception) {
+                Logger.getGlobal().severe(exception.getLocalizedMessage());
+            }
+        }
+    }
+
+    @Override
+    protected void paintComponent(final Graphics graphic) {
+        super.paintComponent(graphic);
+        if (graphic instanceof Graphics2D) {
+            this.snake.drawComponent((Graphics2D) graphic);
+        }
+    }
+    //
+    //    public static void main(String[] args) {
+    //        GameSnake game = new GameSnake();
+    //        game.startGame();
+    //    }
 }

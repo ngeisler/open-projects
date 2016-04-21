@@ -24,6 +24,11 @@ import java.util.Stack;
 class Snake implements Drawable {
 
     /**
+     * The size of one bodypart in pixel.
+     */
+    private static final int BODYPART_SIZE = 10;
+
+    /**
      * The headposition of the snake.
      */
     private Point2D headposition;
@@ -155,8 +160,8 @@ class Snake implements Drawable {
             graphic.fillRect(
                 (int) bodypart.getX(),
                 (int) bodypart.getY(),
-                2,
-                2
+                Snake.BODYPART_SIZE,
+                Snake.BODYPART_SIZE
             );
         }
     }

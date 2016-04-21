@@ -7,10 +7,12 @@
  */
 package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 
+import java.lang.reflect.InvocationTargetException;
 import javax.swing.JPanel;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
  * The test game class for the tests of the snake game.
@@ -22,6 +24,11 @@ import org.junit.Test;
 public class TestGameSnake {
 
     /**
+     * The snacke as mock.
+     */
+    private final Snake mock;
+
+    /**
      * The class under test.
      */
     private final GameSnake cut;
@@ -30,7 +37,8 @@ public class TestGameSnake {
      * The constructor to initilize the final members of the test class.
      */
     public TestGameSnake() {
-        this.cut = new GameSnake();
+        this.mock = Mockito.mock(Snake.class);
+        this.cut = new GameSnake(this.mock);
     }
 
     /**
@@ -43,8 +51,8 @@ public class TestGameSnake {
     }
 
     /**
-     * Test should ckeck if the game is not in a running state before
-     * starting it.
+     * Test should ckeck if the game is not in a running state before starting
+     * it.
      */
     @Test
     public final void gameSnakeShouldNotBeRunningIfGameIsNotStarted() {
@@ -52,8 +60,8 @@ public class TestGameSnake {
     }
 
     /**
-     * Test should ckeck if the game is not in a running state after
-     * stopping it.
+     * Test should ckeck if the game is not in a running state after stopping
+     * it.
      */
     @Test
     public final void gameSnakeShouldNotBeRunningIfGameIsStopped() {
@@ -62,8 +70,8 @@ public class TestGameSnake {
     }
 
     /**
-     * Test should ckeck if the game is a visual Component like JPanel and
-     * is visible after starting it.
+     * Test should ckeck if the game is a visual Component like JPanel and is
+     * visible after starting it.
      */
     @Test
     public final void
@@ -92,8 +100,8 @@ public class TestGameSnake {
     }
 
     /**
-     * Test should ckeck if the game has default size of the view
-     * after starting it.
+     * Test should ckeck if the game has default size of the view after starting
+     * it.
      */
     @Test
     public final void
@@ -110,8 +118,16 @@ public class TestGameSnake {
     }
 
     /**
-     * Test should ckeck if the game has a snake for playing
-     * after starting.
+     * Checks if the game is running in an own Thread to do the logic outside
+     * the event-thread.
+     */
+    @Test
+    public final void gameSnakeShouldBeRunnableForLogicDetail() {
+        MatcherAssert.assertThat(this.cut, Matchers.instanceOf(Runnable.class));
+    }
+
+    /**
+     * Test should ckeck if the game has a snake for playing after starting.
      */
     @Test
     public final void gameSnakeShouldHaveASnakeOnStartup() {
@@ -120,5 +136,22 @@ public class TestGameSnake {
             this.cut.getSnake(),
             Matchers.instanceOf(Snake.class)
         );
+    }
+
+    /**
+     * Test should ckeck if the game has drawed the existing snake after
+     * starting.
+     *
+     * @throws InvocationTargetException An exception on failure.
+     * @throws InterruptedException An exception on failure.
+     */
+    @Test
+    public final void gameSnakeShouldDrawTheSnakeAfterStart()
+        throws InvocationTargetException, InterruptedException {
+        this.cut.startGame();
+        new Thread(this.cut).start();
+        Thread.sleep(GameSnake.DEFAULT_WIDTH);
+        Mockito.verify(this.mock, Mockito.atLeastOnce())
+            .drawComponent(org.mockito.Matchers.anyObject());
     }
 }
