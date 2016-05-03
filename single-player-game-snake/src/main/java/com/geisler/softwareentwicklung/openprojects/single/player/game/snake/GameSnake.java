@@ -54,6 +54,11 @@ class GameSnake extends JPanel implements Runnable {
     private transient Snake snake;
 
     /**
+     * The keylistener of the running game.
+     */
+    private transient SnakeKeyListener keylistener;
+
+    /**
      * A public empty constructor for the gamesnake.
      */
     GameSnake() {
@@ -97,6 +102,8 @@ class GameSnake extends JPanel implements Runnable {
                 GameSnake.DEFAULT_HEIGHT + GameSnake.WIN_HEIGHT_DIFF
             )
         );
+        this.keylistener = new SnakeKeyListener(this.snake);
+        this.addKeyListener(this.keylistener);
         parent.pack();
         parent.setVisible(true);
     }
@@ -127,6 +134,16 @@ class GameSnake extends JPanel implements Runnable {
         return this.snake;
     }
 
+    /**
+     * Returns the keylistener of the running game.
+     *
+     * @return Returns an instance of SnakeKeyListener if the game is running,
+     *  otherwise null.
+     */
+    public SnakeKeyListener getSnakeKeyListener() {
+        return this.keylistener;
+    }
+
     @Override
     public void run() {
         while (this.isRunning()) {
@@ -146,9 +163,9 @@ class GameSnake extends JPanel implements Runnable {
             this.snake.drawComponent((Graphics2D) graphic);
         }
     }
-    //
-    //    public static void main(String[] args) {
-    //        GameSnake game = new GameSnake();
-    //        game.startGame();
-    //    }
+//
+//    public static void main(String[] args) {
+//        GameSnake game = new GameSnake();
+//        game.startGame();
+//    }
 }

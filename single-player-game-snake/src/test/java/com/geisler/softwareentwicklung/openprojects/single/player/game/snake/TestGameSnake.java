@@ -154,4 +154,16 @@ public class TestGameSnake {
         Mockito.verify(this.mock, Mockito.atLeastOnce())
             .drawComponent(org.mockito.Matchers.anyObject());
     }
+
+    /**
+     * Test should ckeck that the game has a listener to react on keyevents.
+     */
+    @Test
+    public final void gameSnakeShouldHaveAKeylistener() {
+        this.cut.startGame();
+        MatcherAssert.assertThat(
+            this.cut.getKeyListeners(),
+            Matchers.hasItemInArray(this.cut.getSnakeKeyListener())
+        );
+    }
 }
