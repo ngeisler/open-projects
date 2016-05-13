@@ -52,16 +52,16 @@ class SnakeKeyListener implements KeyListener {
         if (typedevent.getKeyCode() > 0) {
             switch (typedevent.getKeyCode()) {
                 case KeyEvent.VK_UP:
-                    this.snake.moveUp(0.0);
+                    this.snake.moveUp(Snake.SNAKE_STEP_SIZE);
                     break;
                 case KeyEvent.VK_DOWN:
-                    this.snake.moveDown(0.0);
+                    this.snake.moveDown(Snake.SNAKE_STEP_SIZE);
                     break;
                 case KeyEvent.VK_LEFT:
-                    this.snake.moveLeft(0.0);
+                    this.snake.moveLeft(Snake.SNAKE_STEP_SIZE);
                     break;
                 case KeyEvent.VK_RIGHT:
-                    this.snake.moveRight(0.0);
+                    this.snake.moveRight(Snake.SNAKE_STEP_SIZE);
                     break;
                 default:
                     break;

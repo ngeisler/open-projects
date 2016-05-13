@@ -10,6 +10,7 @@ package com.geisler.softwareentwicklung.openprojects.single.player.game.snake;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -149,7 +150,7 @@ class GameSnake extends JPanel implements Runnable {
         while (this.isRunning()) {
             this.repaint();
             try {
-                Thread.sleep(GameSnake.WIN_WIDTH_DIFF);
+                TimeUnit.SECONDS.sleep(1);
             } catch (final InterruptedException exception) {
                 Logger.getGlobal().severe(exception.getLocalizedMessage());
             }
@@ -163,9 +164,10 @@ class GameSnake extends JPanel implements Runnable {
             this.snake.drawComponent((Graphics2D) graphic);
         }
     }
-//
-//    public static void main(String[] args) {
-//        GameSnake game = new GameSnake();
-//        game.startGame();
-//    }
+
+    public static void main(String[] args) {
+        GameSnake game = new GameSnake();
+        game.startGame();
+
+    }
 }

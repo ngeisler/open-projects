@@ -24,14 +24,14 @@ import java.util.Stack;
 class Snake implements Drawable {
 
     /**
+     * The size of one snake step in pixel.
+     */
+    public static final int SNAKE_STEP_SIZE = 25;
+
+    /**
      * The size of one bodypart in pixel.
      */
     private static final int BODYPART_SIZE = 10;
-
-    /**
-     * The headposition of the snake.
-     */
-    private Point2D headposition;
 
     /**
      * The bodyparts of the snake.
@@ -44,7 +44,13 @@ class Snake implements Drawable {
      * @return The current head position of the snake as Point2D.
      */
     public Point2D getHeadposition() {
-        return this.headposition;
+        final Point2D head;
+        if (this.bodyparts == null || this.bodyparts.isEmpty()) {
+            head = null;
+        } else {
+            head = this.bodyparts.peek();
+        }
+        return head;
     }
 
     /**
@@ -56,10 +62,10 @@ class Snake implements Drawable {
     public void
         updateHeadpositionByDistanceCoordinates(
             final int distx, final int disty) {
-        if (this.headposition != null) {
-            this.headposition.setLocation(
-                this.headposition.getX() + distx,
-                this.headposition.getY() + disty
+        if (this.getHeadposition() != null) {
+            this.getHeadposition().setLocation(
+                this.getHeadposition().getX() + distx,
+                this.getHeadposition().getY() + disty
             );
         }
     }
@@ -85,12 +91,12 @@ class Snake implements Drawable {
                 RoundingMode.HALF_DOWN
             )
             .doubleValue();
-        this.headposition = new Point2D.Double(
+        final Point2D.Double headposition = new Point2D.Double(
             headx,
             heady
         );
         this.bodyparts = new Stack<>();
-        this.bodyparts.add(this.headposition);
+        this.bodyparts.add(headposition);
     }
 
     /**
@@ -115,9 +121,9 @@ class Snake implements Drawable {
      * @param movesize The size of the movement of the snake as double value.
      */
     public void moveRight(final double movesize) {
-        this.headposition.setLocation(
-            this.headposition.getX() + movesize,
-            this.headposition.getY()
+        this.getHeadposition().setLocation(
+            this.getHeadposition().getX() + movesize,
+            this.getHeadposition().getY()
         );
     }
 
@@ -126,9 +132,9 @@ class Snake implements Drawable {
      * @param movesize The size of the movement of the snake as double value.
      */
     public void moveDown(final double movesize) {
-        this.headposition.setLocation(
-            this.headposition.getX(),
-            this.headposition.getY() + movesize
+        this.getHeadposition().setLocation(
+            this.getHeadposition().getX(),
+            this.getHeadposition().getY() + movesize
         );
     }
 
@@ -137,9 +143,9 @@ class Snake implements Drawable {
      * @param movesize The size of the movement of the snake as double value.
      */
     public void moveUp(final double movesize) {
-        this.headposition.setLocation(
-            this.headposition.getX(),
-            this.headposition.getY() - movesize
+        this.getHeadposition().setLocation(
+            this.getHeadposition().getX(),
+            this.getHeadposition().getY() - movesize
         );
     }
 
@@ -148,9 +154,9 @@ class Snake implements Drawable {
      * @param movesize The size of the movement of the snake as double value.
      */
     public void moveLeft(final double movesize) {
-        this.headposition.setLocation(
-            this.headposition.getX() - movesize,
-            this.headposition.getY()
+        this.getHeadposition().setLocation(
+            this.getHeadposition().getX() - movesize,
+            this.getHeadposition().getY()
         );
     }
 
