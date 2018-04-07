@@ -5,8 +5,6 @@ package com.geisler.softwareentwicklung.openprojects.snake.game;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -78,6 +76,21 @@ public class SnakeTest {
         GameWindow gameWindow = game.window();
         
         assertThat(gameWindow.isVisible(), is(Boolean.TRUE));
+    }
+    
+    @Test
+    public void snakeGameShouldContainASnakeWithSizeOfZeroAtInitialState() {
+        SnakeGame snakeGame = new SnakeGame();
+        Snake snake = snakeGame.snake();
+        assertThat(snake.size(), is(0));
+    }
+    
+    @Test
+    public void snakeGameShouldContainASnakeWithSizeOfOneWhenGameIsStarted() {
+        SnakeGame snakeGame = new SnakeGame();
+        snakeGame.start();
+        Snake snake = snakeGame.snake();
+        assertThat(snake.size(), is(1));
     }
 //     @Test
 //     public void shouldShowASnakeInAWindowWhenGameIsStarted() {
