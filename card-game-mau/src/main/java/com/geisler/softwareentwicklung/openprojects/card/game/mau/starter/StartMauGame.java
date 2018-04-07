@@ -9,7 +9,6 @@ package com.geisler.softwareentwicklung.openprojects.card.game.mau.starter;
 
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.CardByRulesNotAllowedException;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatColor;
-import com.geisler.softwareentwicklung.openprojects.card.game.mau.enums.EnumSkatValue;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.GameMau;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.GameMauPlayer;
 import com.geisler.softwareentwicklung.openprojects.card.game.mau.exceptions.NoMorePlayersAllowedException;

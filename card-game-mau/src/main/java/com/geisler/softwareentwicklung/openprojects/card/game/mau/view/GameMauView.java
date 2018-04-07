@@ -162,7 +162,7 @@ public class GameMauView extends JFrame {
             }
             // draw middleCard
             SkatCard card = null;
-            if(getGame() != null) {
+            if(this.getGame() != null) {
                 card = getGame().getMiddleStackCardOnTop();
             }
             if(card != null && images != null 
@@ -170,9 +170,9 @@ public class GameMauView extends JFrame {
                 g.drawImage(images[card.getColor().getIdx()][card.getValue().getIdx()], 470, 260, parent);
             }
             // draw player cards
-            if(getGame() != null) {
+            if(this.getGame() != null) {
                 int i = 0;
-                for(SkatCard playerCard : getGame().getPlayerHandCardsWithId(0)) {
+                for(SkatCard playerCard : this.getGame().getPlayerHandCardsWithId(1)) {
                     int space = i * 5;
                     BufferedImage img = images[playerCard.getColor().getIdx()][playerCard.getValue().getIdx()];
                     g.drawImage(img, 
