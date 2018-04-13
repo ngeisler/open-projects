@@ -17,9 +17,9 @@ import static org.hamcrest.Matchers.*;
  *
  * @author Nico
  */
-public class SnakeTest {
+public class SnakeGameTest {
     
-    public SnakeTest() {
+    public SnakeGameTest() {
     }
     
     @BeforeClass
@@ -39,10 +39,14 @@ public class SnakeTest {
     }
 
     @Test
-    public void snakeSizeShouldBeEmptyAtInitialState() {
-        Snake snake = new Snake();
-        
-        assertThat(snake.size(), is(0));
+    public void snakeGameShouldContainASnakeWithSizeOfOneWhenGameIsStarted() {
+        SnakeGame snakeGame = new SnakeGame();
+        snakeGame.start();
+        Snake snake = snakeGame.snake();
+        assertThat(snake.size(), is(1));
     }
-
+//     @Test
+//     public void shouldShowASnakeInAWindowWhenGameIsStarted() {
+//         
+//     }
 }
