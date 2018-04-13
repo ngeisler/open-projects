@@ -39,10 +39,49 @@ public class SnakeGameTest {
     }
 
     @Test
+    public void snakeGameStatusShouldBeOfflineAtInitialState() {
+        SnakeGame game = new SnakeGame(GameWindow.defaultInstance());
+        
+        GameStatus gameStatus  = game.status();
+        
+        assertThat(gameStatus, is(GameStatus.Offline));
+    }
+    
+    @Test
+    public void snakeGameStatusShouldBeStartedWhenGameIsStarted() {
+        SnakeGame game = new SnakeGame(GameWindow.defaultInstance());
+        
+        game.start();
+        
+        GameStatus gameStatus  = game.status();
+        
+        assertThat(gameStatus, is(GameStatus.Started));
+    }
+        
+    @Test
+    public void snakeGameWindowShouldBeNotVisibleAtInitialState() {
+        SnakeGame game = new SnakeGame(GameWindow.defaultInstance());
+        
+        GameWindow gameWindow = game.window();
+        
+        assertThat(gameWindow.isVisible(), is(Boolean.FALSE));
+    }
+    
+    @Test
+    public void snakeGameWindowShouldBeVisibleWhenGameIsStarted() {
+        SnakeGame game = new SnakeGame(GameWindow.defaultInstance());
+        
+        game.start();
+        
+        GameWindow gameWindow = game.window();
+        
+        assertThat(gameWindow.isVisible(), is(Boolean.TRUE));
+    }
+    @Test
     public void snakeGameShouldContainASnakeWithSizeOfOneWhenGameIsStarted() {
-        SnakeGame snakeGame = new SnakeGame();
-        snakeGame.start();
-        Snake snake = snakeGame.snake();
+        SnakeGame game = new SnakeGame(GameWindow.defaultInstance());
+        game.start();
+        Snake snake = game.snake();
         assertThat(snake.size(), is(1));
     }
 //     @Test

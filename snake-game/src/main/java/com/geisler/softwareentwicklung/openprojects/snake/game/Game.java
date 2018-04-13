@@ -25,7 +25,7 @@ interface Game {
         
         private GameStatus status;
         
-        private GameWindow window;
+        private final GameWindow window;
         
         public DefaultGame(){
             this.status = GameStatus.Offline;
@@ -40,7 +40,7 @@ interface Game {
         @Override
         public void start() {
             this.status = GameStatus.Started;
-            this.window.showWindow();
+            this.window.show();
         }
 
         @Override
