@@ -5,33 +5,42 @@
  */
 package com.geisler.softwareentwicklung.openprojects.black.gold.accounting.app;
 
+import java.math.BigDecimal;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 
 /**
  *
  * @author Nico
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class BlackGoldApplicationTest {
     
     @Test
-    public void whenStartedTheApplicationShouldBeRunning() {
-        BlackGoldApplication blackGoldApplication = new BlackGoldApplication();
-        blackGoldApplication.start(new String[0]);
-        assertThat(blackGoldApplication.runs(), is(true));
+    public void whenACustomerPaysHisDeptTheAccountBalanceShouldBeZero() {
+        BigDecimal dept = new BigDecimal(25);
+        Customer customer = Customer.defaultInstance(new CoffeeAccount(dept.multiply(new BigDecimal(-1))));
+        Account account = customer.account();
+        account.payDept(dept);
+        BigDecimal balance = account.balance();
+        assertThat(balance, is(equalTo(new BigDecimal(0))));
     }
     
-    @Test
-    public void whenNotStartedTheApplicationShouldNotBeRunning() {
-        BlackGoldApplication blackGoldApplication = new BlackGoldApplication();
-        assertThat(blackGoldApplication.runs(), is(false));
-    }
+//    BlackGoldApplication sut;
+//    
+//    @Test
+//    public void whenStartedTheApplicationShouldBeRunning() {
+//        sut = new BlackGoldApplication();
+//        assertThat(sut.runs(), is(true));
+//    }
+//    
+//    @Test
+//    public void whenNotStartedTheApplicationShouldNotBeRunning() {
+//        BlackGoldApplication blackGoldApplication = new BlackGoldApplication();
+//        assertThat(blackGoldApplication.runs(), is(false));
+//    }
 }

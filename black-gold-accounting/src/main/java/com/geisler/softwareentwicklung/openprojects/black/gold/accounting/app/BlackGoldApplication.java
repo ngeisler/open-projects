@@ -16,18 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class BlackGoldApplication {
 
-    private boolean runningStatus;
-
-    public BlackGoldApplication() {
-        this.runningStatus = false;
-    }
-
-    public void start(String[] args) {
+    public static void main(String[] args) {
         SpringApplication.run(BlackGoldApplication.class, args);
-        this.runningStatus = true;
-    }
-
-    boolean runs() {
-        return this.runningStatus;
     }
 }
