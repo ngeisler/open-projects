@@ -11,25 +11,33 @@ package com.geisler.softwareentwicklung.openprojects.snake.game;
  */
 class SnakeGame implements Game {
 
-    private Snake snake;
+    private final Snake snake;
     
-    public SnakeGame(){
+    private GameStatus status;
+    
+    private final GameWindow window;
+    
+    public SnakeGame(GameWindow window){
+        this.window = window;
         this.snake = new Snake();
+        this.status = GameStatus.Offline;
     }
     
     @Override
     public GameStatus status() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this.status;
     }
 
     @Override
-    public void start() {
+    public void start() {        
+        this.window.show();
         this.snake.addToSize();
+        this.status = GameStatus.Started;
     }
 
     @Override
     public GameWindow window() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this.window;
     }
 
     Snake snake() {

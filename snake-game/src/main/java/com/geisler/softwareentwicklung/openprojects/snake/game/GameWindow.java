@@ -11,13 +11,15 @@ package com.geisler.softwareentwicklung.openprojects.snake.game;
  */
 interface GameWindow {
 
-    public Boolean isVisible();
+    public boolean isVisible();
     
     public static GameWindow defaultInstance(){
         return new DefaultGameWindow();
     }
 
-    public void showWindow();
+    public void show();
+    
+    public String title();
 
     public static class DefaultGameWindow implements GameWindow {
 
@@ -28,13 +30,17 @@ interface GameWindow {
         }
 
         @Override
-        public Boolean isVisible() {
+        public boolean isVisible() {
             return this.isVisible;
         }        
 
         @Override
-        public void showWindow() {
+        public void show() {
             this.isVisible = true;
+        }
+        
+        public String title() {
+            return "Default Game Title";
         }
     }
 }
