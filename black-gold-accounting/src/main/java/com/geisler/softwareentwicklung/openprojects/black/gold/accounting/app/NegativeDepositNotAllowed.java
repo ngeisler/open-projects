@@ -5,15 +5,12 @@
  */
 package com.geisler.softwareentwicklung.openprojects.black.gold.accounting.app;
 
-
 /**
  *
  * @author Nico
  */
-public interface Account {
-
-    public void deposit(Amount amountToDeposit);
-
-    public Amount balance();
-
+public class NegativeDepositNotAllowed extends RuntimeException {
+    public NegativeDepositNotAllowed() {
+        super();
+    }
 }

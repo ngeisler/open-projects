@@ -23,24 +23,22 @@ public class BlackGoldApplicationTest {
     @Test
     public void whenACustomerPaysHisDeptTheAccountBalanceShouldBeZero() {
         BigDecimal dept = new BigDecimal(25);
-        Customer customer = Customer.defaultInstance(new CoffeeAccount(dept.multiply(new BigDecimal(-1))));
+        Customer customer = Customer.defaultInstance(new CoffeeAccount(new Amount(dept.multiply(new BigDecimal(-1)), Currency.EURO)));
         Account account = customer.account();
-        account.payDept(dept);
-        BigDecimal balance = account.balance();
-        assertThat(balance, is(equalTo(new BigDecimal(0))));
+        account.deposit(new Amount(dept, Currency.EURO));
+        Amount balance = account.balance();
+        assertThat(balance.value(), is(equalTo(new BigDecimal(0))));
+    }
+
+    @Test(expected = NegativeDepositNotAllowed.class)
+    public void whenADepositAmountWillBeNegativeAnExceptionShouldBeThrown() {
+        Account account = new CoffeeAccount(new Amount(BigDecimal.ZERO, Currency.EURO));
+        account.deposit(new Amount(new BigDecimal(-10), Currency.EURO));
     }
     
-//    BlackGoldApplication sut;
-//    
-//    @Test
-//    public void whenStartedTheApplicationShouldBeRunning() {
-//        sut = new BlackGoldApplication();
-//        assertThat(sut.runs(), is(true));
-//    }
-//    
-//    @Test
-//    public void whenNotStartedTheApplicationShouldNotBeRunning() {
-//        BlackGoldApplication blackGoldApplication = new BlackGoldApplication();
-//        assertThat(blackGoldApplication.runs(), is(false));
-//    }
+    @Test(expected = WrongCurrencyForAccountDeposit.class)
+    public void whenADepositCurrencyIsNotEqualToAccountCurrencyAnExceptionShouldBeThrown() {
+        Account account = new CoffeeAccount(new Amount(BigDecimal.ZERO, Currency.EURO));
+        account.deposit(new Amount(BigDecimal.ONE, Currency.DOLLAR));
+    }
 }

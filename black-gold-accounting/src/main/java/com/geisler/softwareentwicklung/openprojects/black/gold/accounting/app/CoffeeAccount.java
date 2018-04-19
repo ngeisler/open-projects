@@ -13,19 +13,25 @@ import java.math.BigDecimal;
  */
 public class CoffeeAccount implements Account {
 
-    private BigDecimal balance;
+    private Amount balance;
     
-    public CoffeeAccount(BigDecimal balance) {
+    public CoffeeAccount(Amount balance) {
         this.balance = balance;
     }
 
     @Override
-    public void payDept(BigDecimal dept) {
-        this.balance = this.balance.add(dept);
+    public void deposit(Amount amountToDeposit) {
+        if(amountToDeposit.value().compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeDepositNotAllowed();
+        }
+        if(!amountToDeposit.currency().equals(this.balance.currency())) {
+            throw new WrongCurrencyForAccountDeposit();
+        }
+        this.balance = new Amount(this.balance.value().add(amountToDeposit.value()), this.balance.currency());
     }
 
     @Override
-    public BigDecimal balance() {
+    public Amount balance() {
         return this.balance;
     }
     
