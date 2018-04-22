@@ -27,4 +27,8 @@ public class Amount {
     Currency currency() {
         return Currency.valueOf(this.currency.name());
     }
+    
+    boolean isNegative() {
+        return this.value.compareTo(BigDecimal.ZERO) < 0;
+    }
 }

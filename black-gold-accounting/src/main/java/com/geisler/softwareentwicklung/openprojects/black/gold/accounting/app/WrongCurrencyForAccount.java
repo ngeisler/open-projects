@@ -9,9 +9,9 @@ package com.geisler.softwareentwicklung.openprojects.black.gold.accounting.app;
  *
  * @author Nico
  */
-public class WrongCurrencyForAccountDeposit extends RuntimeException {
+public class WrongCurrencyForAccount extends RuntimeException {
 
-    public WrongCurrencyForAccountDeposit() {
+    public WrongCurrencyForAccount() {
         super();
     }
 }

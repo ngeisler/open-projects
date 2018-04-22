@@ -18,17 +18,7 @@ import static org.hamcrest.Matchers.*;
  */
 //@RunWith(SpringRunner.class)
 //@SpringBootTest
-public class BlackGoldApplicationTest {
-    
-    @Test
-    public void whenACustomerPaysHisDeptTheAccountBalanceShouldBeZero() {
-        BigDecimal dept = new BigDecimal(25);
-        Customer customer = Customer.defaultInstance(new CoffeeAccount(new Amount(dept.multiply(new BigDecimal(-1)), Currency.EURO)));
-        Account account = customer.account();
-        account.deposit(new Amount(dept, Currency.EURO));
-        Amount balance = account.balance();
-        assertThat(balance.value(), is(equalTo(new BigDecimal(0))));
-    }
+public class CoffeeAccountTest {
 
     @Test(expected = NegativeDepositNotAllowed.class)
     public void whenADepositAmountWillBeNegativeAnExceptionShouldBeThrown() {
@@ -36,9 +26,22 @@ public class BlackGoldApplicationTest {
         account.deposit(new Amount(new BigDecimal(-10), Currency.EURO));
     }
     
-    @Test(expected = WrongCurrencyForAccountDeposit.class)
+    @Test(expected = WrongCurrencyForAccount.class)
     public void whenADepositCurrencyIsNotEqualToAccountCurrencyAnExceptionShouldBeThrown() {
         Account account = new CoffeeAccount(new Amount(BigDecimal.ZERO, Currency.EURO));
         account.deposit(new Amount(BigDecimal.ONE, Currency.DOLLAR));
     }
+    
+    @Test(expected = NegativePayoutNotAllowed.class)
+    public void whenAPayoutAmountWillBeNegativeAnExceptionShouldBeThrown() {
+        Account account = new CoffeeAccount(new Amount(BigDecimal.ZERO, Currency.EURO));
+        account.payout(new Amount(new BigDecimal(-10), Currency.EURO));
+    }
+        
+    @Test(expected = WrongCurrencyForAccount.class)
+    public void whenAPayoutCurrencyIsNotEqualToAccountCurrencyAnExceptionShouldBeThrown() {
+        Account account = new CoffeeAccount(new Amount(BigDecimal.ZERO, Currency.EURO));
+        account.payout(new Amount(BigDecimal.ONE, Currency.DOLLAR));
+    }
+
 }
